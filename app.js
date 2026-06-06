@@ -1,9 +1,101 @@
+// ==========================================================================
+// 1. CHAVES DE ARMAZENAMENTO (LOCAL STORAGE)
+// Responsável por salvar as configurações no navegador do usuário
+// ==========================================================================
 const SUPREME_STORAGE_KEYS = {
   whiteLabel: "supreme_whitelabel_config",
   backend: "supreme_backend_config",
   ai: "supreme_ai_config"
 };
 
+// ==========================================================================
+// 2. SUPREME DESIGN SYSTEM - COMPONENT FACTORY (VANILLA JS)
+// Fábrica de componentes reutilizáveis. Gera o HTML dinamicamente.
+// ==========================================================================
+const SupremeUI = {
+    
+    /**
+     * Cria um item de conversa para a lista lateral (Inbox)
+     * Respeita o atributo data-conversation-id usado no seu bindEvents
+     */
+    chatItem: function({ id, name, initials, preview, time, channel, status, unread, isActive }) {
+        const activeClass = isActive ? 'active' : '';
+        const unreadBadge = unread > 0 ? `<span class="badge status-open">${unread}</span>` : '';
+        
+        return `
+            <button class="chat-item ${activeClass}" type="button" data-conversation-id="${id}">
+                <div class="avatar">${initials}</div>
+                <div class="chat-preview">
+                    <h4><span>${name}</span><span class="chat-time">${time}</span></h4>
+                    <p>${preview}</p>
+                    <div class="chat-meta-line">
+                        ${getChannelBadge(channel)}
+                        <span class="badge status-${status}">${getStatusLabel(status)}</span>
+                        ${unreadBadge}
+                    </div>
+                </div>
+            </button>
+        `;
+    },
+
+    /**
+     * Cria um balão de mensagem para o histórico de chat
+     */
+    chatMessage: function({ type, text, time }) {
+        const msgClass = type === 'in' ? 'msg-in' : type === 'note' ? 'msg-note' : 'msg-out';
+        const notePrefix = type === 'note' ? '<strong>Nota interna:</strong> ' : '';
+        
+        return `
+            <div class="message ${msgClass}">
+                ${notePrefix}${escapeHTML(text)}
+                <span class="msg-time">${escapeHTML(time)}</span>
+            </div>
+        `;
+    },
+
+    /**
+     * Cria um Card para o Kanban (CRM)
+     * Usa data-opportunity-id para manter o seu Drag and Drop funcionando
+     */
+    kanbanCard: function({ id, title, company, value, probability }) {
+        return `
+            <article class="k-card" draggable="true" data-opportunity-id="${id}">
+                <h4>${escapeHTML(title)}</h4>
+                <p>${escapeHTML(company)}</p>
+                <div class="k-card-footer">
+                    <span>${formatCurrency(value)}</span>
+                    <span>${probability}%</span>
+                </div>
+            </article>
+        `;
+    },
+
+    /**
+     * Cria um Card de Automação
+     * Usa data-toggle-automation para manter o clique funcionando no bindEvents
+     */
+    automationCard: function({ id, name, description, icon, active }) {
+        const btnClass = active ? 'btn-secondary' : 'btn-ghost';
+        const toggleIcon = active ? 'fa-toggle-on' : 'fa-toggle-off';
+        const statusText = active ? 'Ativa' : 'Inativa';
+
+        return `
+            <article class="automation-card">
+                <div class="automation-icon"><i class="${icon}"></i></div>
+                <h3>${escapeHTML(name)}</h3>
+                <p>${escapeHTML(description)}</p>
+                <button class="btn ${btnClass} full" type="button" data-toggle-automation="${id}">
+                    <i class="fa-solid ${toggleIcon}"></i> ${statusText}
+                </button>
+            </article>
+        `;
+    }
+};
+
+// ==========================================================================
+// 3. ESTADO GLOBAL DA APLICAÇÃO (STATE)
+// Armazena todos os dados que transitam pelas telas (Conversas, CRM, etc)
+// ==========================================================================
 const state = {
   activeModule: "dashboard",
   activeFilter: "all",
@@ -14,237 +106,67 @@ const state = {
 
   conversations: [
     {
-      id: "conv-001",
-      status: "open",
-      assignedTo: "Ana Sales",
-      lastAt: "09:42",
-      unread: 2,
-      contact: {
-        name: "Mariana Costa",
-        initials: "MC",
-        company: "Costa Beauty Clinic",
-        channel: "whatsapp",
-        phone: "+55 11 98888-1200",
-        email: "mariana@costabeauty.com",
-        tags: ["Lead quente", "Automação", "WhatsApp"],
-        sentiment: "Positivo",
-        value: 6800
-      },
+      id: "conv-001", status: "open", assignedTo: "Ana Sales", lastAt: "09:42", unread: 2,
+      contact: { name: "Mariana Costa", initials: "MC", company: "Costa Beauty Clinic", channel: "whatsapp", phone: "+55 11 98888-1200", email: "mariana@costabeauty.com", tags: ["Lead quente", "Automação", "WhatsApp"], sentiment: "Positivo", value: 6800 },
       messages: [
-        {
-          type: "in",
-          text: "Olá, vi a Supreme Tech no Instagram. Quero automatizar o atendimento da minha clínica pelo WhatsApp.",
-          time: "09:31"
-        },
-        {
-          type: "out",
-          text: "Olá, Mariana! Perfeito. Conseguimos integrar WhatsApp, IA, CRM e automações para sua clínica. Hoje vocês recebem muitos leads por dia?",
-          time: "09:34"
-        },
-        {
-          type: "in",
-          text: "Sim, recebemos em média 40 mensagens por dia e perdemos muitas por demora no retorno.",
-          time: "09:42"
-        }
+        { type: "in", text: "Olá, vi a Supreme Tech no Instagram. Quero automatizar o atendimento da minha clínica pelo WhatsApp.", time: "09:31" },
+        { type: "out", text: "Olá, Mariana! Perfeito. Conseguimos integrar WhatsApp, IA, CRM e automações para sua clínica. Hoje vocês recebem muitos leads por dia?", time: "09:34" },
+        { type: "in", text: "Sim, recebemos em média 40 mensagens por dia e perdemos muitas por demora no retorno.", time: "09:42" }
       ]
     },
     {
-      id: "conv-002",
-      status: "pending",
-      assignedTo: "Bruno CX",
-      lastAt: "10:08",
-      unread: 0,
-      contact: {
-        name: "Rafael Mendes",
-        initials: "RM",
-        company: "Mendes Imóveis",
-        channel: "instagram",
-        phone: "+55 21 97777-4400",
-        email: "rafael@mendesimoveis.com",
-        tags: ["CRM", "Pipeline", "Imobiliária"],
-        sentiment: "Neutro",
-        value: 9200
-      },
+      id: "conv-002", status: "pending", assignedTo: "Bruno CX", lastAt: "10:08", unread: 0,
+      contact: { name: "Rafael Mendes", initials: "RM", company: "Mendes Imóveis", channel: "instagram", phone: "+55 21 97777-4400", email: "rafael@mendesimoveis.com", tags: ["CRM", "Pipeline", "Imobiliária"], sentiment: "Neutro", value: 9200 },
       messages: [
-        {
-          type: "in",
-          text: "Preciso organizar meus corretores em um funil de vendas. Vocês têm CRM visual?",
-          time: "09:58"
-        },
-        {
-          type: "out",
-          text: "Temos sim. O CRM pode funcionar em kanban, com funis personalizados, automações e integração com WhatsApp.",
-          time: "10:03"
-        },
-        {
-          type: "note",
-          text: "Cliente pediu demonstração ainda esta semana. Priorizar follow-up.",
-          time: "10:08"
-        }
+        { type: "in", text: "Preciso organizar meus corretores em um funil de vendas. Vocês têm CRM visual?", time: "09:58" },
+        { type: "out", text: "Temos sim. O CRM pode funcionar em kanban, com funis personalizados, automações e integração com WhatsApp.", time: "10:03" },
+        { type: "note", text: "Cliente pediu demonstração ainda esta semana. Priorizar follow-up.", time: "10:08" }
       ]
     },
     {
-      id: "conv-003",
-      status: "open",
-      assignedTo: "Carla Suporte",
-      lastAt: "11:17",
-      unread: 1,
-      contact: {
-        name: "Juliana Rocha",
-        initials: "JR",
-        company: "JR Educação",
-        channel: "email",
-        phone: "+55 31 96666-1212",
-        email: "juliana@jreducacao.com",
-        tags: ["Suporte", "IA", "SaaS"],
-        sentiment: "Preocupado",
-        value: 3900
-      },
+      id: "conv-003", status: "open", assignedTo: "Carla Suporte", lastAt: "11:17", unread: 1,
+      contact: { name: "Juliana Rocha", initials: "JR", company: "JR Educação", channel: "email", phone: "+55 31 96666-1212", email: "juliana@jreducacao.com", tags: ["Suporte", "IA", "SaaS"], sentiment: "Preocupado", value: 3900 },
       messages: [
-        {
-          type: "in",
-          text: "Estamos testando o bot, mas queremos que ele seja mais humanizado nas respostas.",
-          time: "11:11"
-        },
-        {
-          type: "out",
-          text: "Entendi, Juliana. Podemos ajustar o tom de voz, criar base de conhecimento e limitar respostas para evitar mensagens robóticas.",
-          time: "11:14"
-        },
-        {
-          type: "in",
-          text: "Ótimo. Quero evitar que ele responda coisas fora do contexto.",
-          time: "11:17"
-        }
+        { type: "in", text: "Estamos testando o bot, mas queremos que ele seja mais humanizado nas respostas.", time: "11:11" },
+        { type: "out", text: "Entendi, Juliana. Podemos ajustar o tom de voz, criar base de conhecimento e limitar respostas para evitar mensagens robóticas.", time: "11:14" },
+        { type: "in", text: "Ótimo. Quero evitar que ele responda coisas fora do contexto.", time: "11:17" }
       ]
     },
     {
-      id: "conv-004",
-      status: "resolved",
-      assignedTo: "Ana Sales",
-      lastAt: "Ontem",
-      unread: 0,
-      contact: {
-        name: "Eduardo Lima",
-        initials: "EL",
-        company: "Lima Distribuidora",
-        channel: "whatsapp",
-        phone: "+55 41 95555-9000",
-        email: "eduardo@limadistribuidora.com",
-        tags: ["ERP", "Integração", "Contrato"],
-        sentiment: "Positivo",
-        value: 14700
-      },
+      id: "conv-004", status: "resolved", assignedTo: "Ana Sales", lastAt: "Ontem", unread: 0,
+      contact: { name: "Eduardo Lima", initials: "EL", company: "Lima Distribuidora", channel: "whatsapp", phone: "+55 41 95555-9000", email: "eduardo@limadistribuidora.com", tags: ["ERP", "Integração", "Contrato"], sentiment: "Positivo", value: 14700 },
       messages: [
-        {
-          type: "in",
-          text: "Contrato aprovado. Vamos seguir com a integração do ERP.",
-          time: "Ontem"
-        },
-        {
-          type: "out",
-          text: "Excelente, Eduardo. Vamos iniciar o onboarding com o time técnico.",
-          time: "Ontem"
-        }
+        { type: "in", text: "Contrato aprovado. Vamos seguir com a integração do ERP.", time: "Ontem" },
+        { type: "out", text: "Excelente, Eduardo. Vamos iniciar o onboarding com o time técnico.", time: "Ontem" }
       ]
     }
   ],
 
   opportunities: [
-    {
-      id: "opp-001",
-      title: "Automação WhatsApp + IA",
-      company: "Costa Beauty Clinic",
-      value: 6800,
-      stage: "Novo Lead",
-      probability: 35,
-      owner: "Ana Sales"
-    },
-    {
-      id: "opp-002",
-      title: "CRM para corretores",
-      company: "Mendes Imóveis",
-      value: 9200,
-      stage: "Qualificação",
-      probability: 55,
-      owner: "Bruno CX"
-    },
-    {
-      id: "opp-003",
-      title: "IA para suporte educacional",
-      company: "JR Educação",
-      value: 3900,
-      stage: "Proposta",
-      probability: 70,
-      owner: "Carla Suporte"
-    },
-    {
-      id: "opp-004",
-      title: "Integração ERP Enterprise",
-      company: "Lima Distribuidora",
-      value: 14700,
-      stage: "Fechado",
-      probability: 100,
-      owner: "Ana Sales"
-    }
+    { id: "opp-001", title: "Automação WhatsApp + IA", company: "Costa Beauty Clinic", value: 6800, stage: "Novo Lead", probability: 35, owner: "Ana Sales" },
+    { id: "opp-002", title: "CRM para corretores", company: "Mendes Imóveis", value: 9200, stage: "Qualificação", probability: 55, owner: "Bruno CX" },
+    { id: "opp-003", title: "IA para suporte educacional", company: "JR Educação", value: 3900, stage: "Proposta", probability: 70, owner: "Carla Suporte" },
+    { id: "opp-004", title: "Integração ERP Enterprise", company: "Lima Distribuidora", value: 14700, stage: "Fechado", probability: 100, owner: "Ana Sales" }
   ],
 
   automations: [
-    {
-      id: "auto-001",
-      name: "Novo lead WhatsApp",
-      description: "Cria contato, aplica tag, envia saudação e abre oportunidade no CRM.",
-      icon: "fa-brands fa-whatsapp",
-      active: true
-    },
-    {
-      id: "auto-002",
-      name: "Follow-up inteligente",
-      description: "Detecta conversas sem resposta e agenda follow-up automático.",
-      icon: "fa-solid fa-clock-rotate-left",
-      active: true
-    },
-    {
-      id: "auto-003",
-      name: "Resumo pós-atendimento",
-      description: "Gera resumo, classifica sentimento e atualiza histórico do cliente.",
-      icon: "fa-solid fa-brain",
-      active: false
-    }
+    { id: "auto-001", name: "Novo lead WhatsApp", description: "Cria contato, aplica tag, envia saudação e abre oportunidade no CRM.", icon: "fa-brands fa-whatsapp", active: true },
+    { id: "auto-002", name: "Follow-up inteligente", description: "Detecta conversas sem resposta e agenda follow-up automático.", icon: "fa-solid fa-clock-rotate-left", active: true },
+    { id: "auto-003", name: "Resumo pós-atendimento", description: "Gera resumo, classifica sentimento e atualiza histórico do cliente.", icon: "fa-solid fa-brain", active: false }
   ],
 
   contracts: [
-    {
-      client: "Costa Beauty Clinic",
-      plan: "Automation Pro",
-      status: "Em negociação",
-      mrr: 1890,
-      due: "15/07/2026"
-    },
-    {
-      client: "Mendes Imóveis",
-      plan: "CRM Enterprise",
-      status: "Proposta enviada",
-      mrr: 2490,
-      due: "22/07/2026"
-    },
-    {
-      client: "JR Educação",
-      plan: "AI Support",
-      status: "Ativo",
-      mrr: 1290,
-      due: "05/07/2026"
-    },
-    {
-      client: "Lima Distribuidora",
-      plan: "Enterprise ERP",
-      status: "Ativo",
-      mrr: 4900,
-      due: "01/07/2026"
-    }
+    { client: "Costa Beauty Clinic", plan: "Automation Pro", status: "Em negociação", mrr: 1890, due: "15/07/2026" },
+    { client: "Mendes Imóveis", plan: "CRM Enterprise", status: "Proposta enviada", mrr: 2490, due: "22/07/2026" },
+    { client: "JR Educação", plan: "AI Support", status: "Ativo", mrr: 1290, due: "05/07/2026" },
+    { client: "Lima Distribuidora", plan: "Enterprise ERP", status: "Ativo", mrr: 4900, due: "01/07/2026" }
   ]
 };
 
+// ==========================================================================
+// 4. INICIALIZAÇÃO E EVENTOS
+// Inicializa a plataforma quando o DOM estiver pronto
+// ==========================================================================
 document.addEventListener("DOMContentLoaded", initApp);
 
 function initApp() {
@@ -285,28 +207,19 @@ function bindEvents() {
   document.querySelectorAll(".filter-btn[data-filter]").forEach((button) => {
     button.addEventListener("click", () => {
       state.activeFilter = button.dataset.filter;
-
       document.querySelectorAll(".filter-btn").forEach((item) => item.classList.remove("active"));
       button.classList.add("active");
-
       renderConversations();
     });
   });
 
   document.getElementById("conversations-list").addEventListener("click", (event) => {
     const chatItem = event.target.closest(".chat-item");
-
-    if (!chatItem) {
-      return;
-    }
+    if (!chatItem) return;
 
     state.activeConversationId = chatItem.dataset.conversationId;
-
     const conversation = getActiveConversation();
-
-    if (conversation) {
-      conversation.unread = 0;
-    }
+    if (conversation) conversation.unread = 0;
 
     renderConversations();
     renderActiveConversation();
@@ -317,9 +230,7 @@ function bindEvents() {
   });
 
   document.getElementById("toggle-note").addEventListener("change", toggleInternalNote);
-
   document.getElementById("btn-send").addEventListener("click", sendMessage);
-
   document.getElementById("msg-input").addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
@@ -332,7 +243,6 @@ function bindEvents() {
   document.getElementById("btn-analyze-sentiment").addEventListener("click", analyzeSentiment);
   document.getElementById("btn-resolve-conversation").addEventListener("click", resolveConversation);
   document.getElementById("btn-new-conversation").addEventListener("click", createMockConversation);
-
   document.getElementById("btn-add-opportunity").addEventListener("click", createOpportunity);
 
   document.getElementById("kanban-board").addEventListener("dragstart", handleKanbanDragStart);
@@ -340,14 +250,9 @@ function bindEvents() {
   document.getElementById("kanban-board").addEventListener("drop", handleKanbanDrop);
 
   document.getElementById("btn-create-automation").addEventListener("click", createAutomation);
-
   document.getElementById("automation-grid").addEventListener("click", (event) => {
     const button = event.target.closest("[data-toggle-automation]");
-
-    if (!button) {
-      return;
-    }
-
+    if (!button) return;
     toggleAutomation(button.dataset.toggleAutomation);
   });
 
@@ -361,6 +266,10 @@ function bindEvents() {
   document.getElementById("btn-save-ai").addEventListener("click", saveAIConfig);
 }
 
+// ==========================================================================
+// 5. FUNÇÕES DE RENDERIZAÇÃO E NEGÓCIO
+// ==========================================================================
+
 function setActiveModule(moduleName) {
   state.activeModule = moduleName;
 
@@ -373,22 +282,13 @@ function setActiveModule(moduleName) {
   });
 
   const activeSection = document.getElementById(`module-${moduleName}`);
-
   if (activeSection) {
     activeSection.classList.add("active");
   }
 
-  if (moduleName === "dashboard") {
-    renderDashboard();
-  }
-
-  if (moduleName === "crm") {
-    renderKanban();
-  }
-
-  if (moduleName === "automations") {
-    renderAutomations();
-  }
+  if (moduleName === "dashboard") renderDashboard();
+  if (moduleName === "crm") renderKanban();
+  if (moduleName === "automations") renderAutomations();
 }
 
 function renderDashboard() {
@@ -433,9 +333,7 @@ function renderConversations() {
       conversation.contact.company,
       conversation.contact.phone,
       getLastMessage(conversation).text
-    ]
-      .join(" ")
-      .toLowerCase();
+    ].join(" ").toLowerCase();
 
     return matchesFilter && searchable.includes(search);
   });
@@ -450,70 +348,43 @@ function renderConversations() {
     return;
   }
 
-  list.innerHTML = filtered
-    .map((conversation) => {
-      const lastMessage = getLastMessage(conversation);
-      const isActive = conversation.id === state.activeConversationId;
-      const channelBadge = getChannelBadge(conversation.contact.channel);
-      const statusLabel = getStatusLabel(conversation.status);
-
-      return `
-        <button class="chat-item ${isActive ? "active" : ""}" type="button" data-conversation-id="${escapeHTML(conversation.id)}">
-          <div class="avatar">${escapeHTML(conversation.contact.initials)}</div>
-
-          <div class="chat-preview">
-            <h4>
-              <span>${escapeHTML(conversation.contact.name)}</span>
-              <span class="chat-time">${escapeHTML(conversation.lastAt)}</span>
-            </h4>
-
-            <p>${escapeHTML(lastMessage.text)}</p>
-
-            <div class="chat-meta-line">
-              ${channelBadge}
-              <span class="badge status-${escapeHTML(conversation.status)}">${escapeHTML(statusLabel)}</span>
-              ${conversation.unread > 0 ? `<span class="badge status-open">${conversation.unread}</span>` : ""}
-            </div>
-          </div>
-        </button>
-      `;
-    })
-    .join("");
+  // Utilizando o nosso Componente Reutilizável SupremeUI
+  list.innerHTML = filtered.map((conversation) => {
+    return SupremeUI.chatItem({
+      id: conversation.id,
+      name: conversation.contact.name,
+      initials: conversation.contact.initials,
+      preview: getLastMessage(conversation).text,
+      time: conversation.lastAt,
+      channel: conversation.contact.channel,
+      status: conversation.status,
+      unread: conversation.unread,
+      isActive: conversation.id === state.activeConversationId
+    });
+  }).join("");
 }
 
 function renderActiveConversation() {
   const conversation = getActiveConversation();
-
-  if (!conversation) {
-    return;
-  }
+  if (!conversation) return;
 
   setText("active-contact-name", conversation.contact.name);
-  setText(
-    "active-contact-meta",
-    `${conversation.contact.company} • ${capitalize(conversation.contact.channel)} • ${conversation.assignedTo}`
-  );
+  setText("active-contact-meta", `${conversation.contact.company} • ${capitalize(conversation.contact.channel)} • ${conversation.assignedTo}`);
 
   document.getElementById("assign-select").value = conversation.assignedTo;
 
   const history = document.getElementById("chat-history");
 
-  history.innerHTML = conversation.messages
-    .map((message) => {
-      const className = message.type === "in" ? "msg-in" : message.type === "note" ? "msg-note" : "msg-out";
-      const prefix = message.type === "note" ? '<strong>Nota interna:</strong> ' : "";
-
-      return `
-        <div class="message ${className}">
-          ${prefix}${escapeHTML(message.text)}
-          <span class="msg-time">${escapeHTML(message.time)}</span>
-        </div>
-      `;
-    })
-    .join("");
+  // Injetando mensagens através do Component Factory
+  history.innerHTML = conversation.messages.map((message) => {
+    return SupremeUI.chatMessage({
+      type: message.type,
+      text: message.text,
+      time: message.time
+    });
+  }).join("");
 
   history.scrollTop = history.scrollHeight;
-
   renderContactDetails(conversation);
 }
 
@@ -532,7 +403,6 @@ function renderContactDetails(conversation) {
     .join("");
 
   const summaryOutput = document.getElementById("ai-summary-output");
-
   if (!summaryOutput.dataset.generated) {
     summaryOutput.textContent = "Gere um resumo automático para visualizar o contexto da conversa.";
   }
@@ -543,15 +413,8 @@ function sendMessage() {
   const text = input.value.trim();
   const conversation = getActiveConversation();
 
-  if (!conversation) {
-    showTechToast("Selecione uma conversa antes de enviar.", "error");
-    return;
-  }
-
-  if (!text) {
-    showTechToast("Digite uma mensagem antes de enviar.", "error");
-    return;
-  }
+  if (!conversation) return showTechToast("Selecione uma conversa antes de enviar.", "error");
+  if (!text) return showTechToast("Digite uma mensagem antes de enviar.", "error");
 
   const messageType = state.isInternalNote ? "note" : "out";
 
@@ -578,7 +441,6 @@ function sendMessage() {
 function insertMacro(text) {
   const input = document.getElementById("msg-input");
   const separator = input.value.trim().length > 0 ? " " : "";
-
   input.value = `${input.value}${separator}${text}`;
   input.focus();
 }
@@ -597,18 +459,12 @@ function toggleInternalNote() {
 
 function applyAISuggestion() {
   const conversation = getActiveConversation();
-
-  if (!conversation) {
-    showTechToast("Selecione uma conversa para usar a IA.", "error");
-    return;
-  }
+  if (!conversation) return showTechToast("Selecione uma conversa para usar a IA.", "error");
 
   const suggestion = createAISuggestion(conversation);
   const input = document.getElementById("msg-input");
-
   input.value = suggestion;
   input.focus();
-
   showTechToast("Sugestão de IA aplicada no campo de mensagem.", "info");
 }
 
@@ -628,11 +484,7 @@ function createAISuggestion(conversation) {
 
 function generateAISummary() {
   const conversation = getActiveConversation();
-
-  if (!conversation) {
-    showTechToast("Selecione uma conversa para resumir.", "error");
-    return;
-  }
+  if (!conversation) return showTechToast("Selecione uma conversa para resumir.", "error");
 
   const lastInbound = [...conversation.messages].reverse().find((message) => message.type === "in");
   const summary = `Resumo IA: ${conversation.contact.name} da empresa ${conversation.contact.company} demonstrou interesse em ${conversation.contact.tags.join(", ")}. Valor estimado: ${formatCurrency(conversation.contact.value)}. Último ponto relevante: "${lastInbound ? lastInbound.text : "sem mensagem recente"}".`;
@@ -640,17 +492,12 @@ function generateAISummary() {
   const output = document.getElementById("ai-summary-output");
   output.textContent = summary;
   output.dataset.generated = "true";
-
   showTechToast("Resumo automático gerado pela IA.", "success");
 }
 
 function analyzeSentiment() {
   const conversation = getActiveConversation();
-
-  if (!conversation) {
-    showTechToast("Selecione uma conversa para analisar.", "error");
-    return;
-  }
+  if (!conversation) return showTechToast("Selecione uma conversa para analisar.", "error");
 
   const joinedMessages = conversation.messages.map((message) => message.text.toLowerCase()).join(" ");
 
@@ -668,11 +515,7 @@ function analyzeSentiment() {
 
 function resolveConversation() {
   const conversation = getActiveConversation();
-
-  if (!conversation) {
-    showTechToast("Selecione uma conversa para resolver.", "error");
-    return;
-  }
+  if (!conversation) return showTechToast("Selecione uma conversa para resolver.", "error");
 
   conversation.status = "resolved";
   conversation.unread = 0;
@@ -680,37 +523,15 @@ function resolveConversation() {
   renderConversations();
   renderActiveConversation();
   renderDashboard();
-
   showTechToast("Atendimento marcado como resolvido.", "success");
 }
 
 function createMockConversation() {
   const id = `conv-${String(state.conversations.length + 1).padStart(3, "0")}`;
-
   const conversation = {
-    id,
-    status: "open",
-    assignedTo: "IA Copilot",
-    lastAt: getCurrentTime(),
-    unread: 1,
-    contact: {
-      name: "Novo Lead Premium",
-      initials: "NL",
-      company: "Empresa em Qualificação",
-      channel: "whatsapp",
-      phone: "+55 11 90000-0000",
-      email: "lead@empresa.com",
-      tags: ["Novo", "IA", "Qualificação"],
-      sentiment: "Neutro",
-      value: 5200
-    },
-    messages: [
-      {
-        type: "in",
-        text: "Olá, quero conhecer as soluções da Supreme Tech.",
-        time: getCurrentTime()
-      }
-    ]
+    id, status: "open", assignedTo: "IA Copilot", lastAt: getCurrentTime(), unread: 1,
+    contact: { name: "Novo Lead Premium", initials: "NL", company: "Empresa em Qualificação", channel: "whatsapp", phone: "+55 11 90000-0000", email: "lead@empresa.com", tags: ["Novo", "IA", "Qualificação"], sentiment: "Neutro", value: 5200 },
+    messages: [{ type: "in", text: "Olá, quero conhecer as soluções da Supreme Tech.", time: getCurrentTime() }]
   };
 
   state.conversations.unshift(conversation);
@@ -719,176 +540,124 @@ function createMockConversation() {
   renderConversations();
   renderActiveConversation();
   renderDashboard();
-
   showTechToast("Nova conversa criada para demonstração.", "success");
 }
 
 function renderKanban() {
-  const board = document.getElementById("kanban-board");
-  const stages = ["Novo Lead", "Qualificação", "Proposta", "Fechado"];
+    const board = document.getElementById("kanban-board");
+    const stages = ["Novo Lead", "Qualificação", "Proposta", "Fechado"];
 
-  board.innerHTML = stages
-    .map((stage) => {
-      const opportunities = state.opportunities.filter((opportunity) => opportunity.stage === stage);
-      const total = opportunities.reduce((sum, opportunity) => sum + opportunity.value, 0);
+    board.innerHTML = stages.map(stage => {
+        const stageOpps = state.opportunities.filter(opp => opp.stage === stage);
+        const stageTotal = stageOpps.reduce((sum, opp) => sum + opp.value, 0);
 
-      return `
-        <section class="kanban-column" data-stage="${escapeHTML(stage)}">
-          <header class="kanban-header">
-            <h3>${escapeHTML(stage)}</h3>
-            <span>${opportunities.length} oportunidades • ${formatCurrency(total)}</span>
-          </header>
+        // Gera os cards HTML usando o nosso Design System
+        const cardsHTML = stageOpps.map(opp => 
+            SupremeUI.kanbanCard({
+                id: opp.id,
+                title: opp.title,
+                company: opp.company,
+                value: opp.value,
+                probability: opp.probability
+            })
+        ).join("");
 
-          <div class="kanban-cards">
-            ${opportunities
-              .map((opportunity) => {
-                return `
-                  <article class="k-card" draggable="true" data-opportunity-id="${escapeHTML(opportunity.id)}">
-                    <h4>${escapeHTML(opportunity.title)}</h4>
-                    <p>${escapeHTML(opportunity.company)}</p>
-                    <div class="k-card-footer">
-                      <span>${formatCurrency(opportunity.value)}</span>
-                      <span>${opportunity.probability}%</span>
-                    </div>
-                  </article>
-                `;
-              })
-              .join("")}
-          </div>
-        </section>
-      `;
-    })
-    .join("");
+        return `
+            <section class="kanban-column" data-stage="${escapeHTML(stage)}">
+                <header class="kanban-header">
+                    <h3>${escapeHTML(stage)}</h3>
+                    <span>${stageOpps.length} oportunidades • ${formatCurrency(stageTotal)}</span>
+                </header>
+                <div class="kanban-cards">
+                    ${cardsHTML}
+                </div>
+            </section>
+        `;
+    }).join("");
 }
 
 function handleKanbanDragStart(event) {
   const card = event.target.closest(".k-card");
-
-  if (!card) {
-    return;
-  }
-
+  if (!card) return;
   state.draggedOpportunityId = card.dataset.opportunityId;
   event.dataTransfer.effectAllowed = "move";
 }
 
 function handleKanbanDragOver(event) {
   const column = event.target.closest(".kanban-column");
-
-  if (!column) {
-    return;
-  }
-
+  if (!column) return;
   event.preventDefault();
   event.dataTransfer.dropEffect = "move";
 }
 
 function handleKanbanDrop(event) {
   const column = event.target.closest(".kanban-column");
-
-  if (!column || !state.draggedOpportunityId) {
-    return;
-  }
+  if (!column || !state.draggedOpportunityId) return;
 
   const opportunity = state.opportunities.find((item) => item.id === state.draggedOpportunityId);
-
-  if (!opportunity) {
-    return;
-  }
+  if (!opportunity) return;
 
   opportunity.stage = column.dataset.stage;
-
   if (opportunity.stage === "Fechado") {
     opportunity.probability = 100;
   }
 
   state.draggedOpportunityId = null;
-
   renderKanban();
   renderDashboard();
-
   showTechToast(`Oportunidade movida para ${opportunity.stage}.`, "success");
 }
 
 function createOpportunity() {
   const id = `opp-${String(state.opportunities.length + 1).padStart(3, "0")}`;
-
   state.opportunities.unshift({
-    id,
-    title: "Nova solução SaaS personalizada",
-    company: "Lead Enterprise",
-    value: 7500,
-    stage: "Novo Lead",
-    probability: 25,
-    owner: "Ana Sales"
+    id, title: "Nova solução SaaS personalizada", company: "Lead Enterprise", value: 7500, stage: "Novo Lead", probability: 25, owner: "Ana Sales"
   });
 
   renderKanban();
   renderDashboard();
-
   showTechToast("Nova oportunidade criada no CRM.", "success");
 }
 
 function renderAutomations() {
   const grid = document.getElementById("automation-grid");
-
-  grid.innerHTML = state.automations
-    .map((automation) => {
-      return `
-        <article class="automation-card">
-          <div class="automation-icon">
-            <i class="${escapeHTML(automation.icon)}"></i>
-          </div>
-
-          <h3>${escapeHTML(automation.name)}</h3>
-          <p>${escapeHTML(automation.description)}</p>
-
-          <button class="btn ${automation.active ? "btn-secondary" : "btn-ghost"} full" type="button" data-toggle-automation="${escapeHTML(automation.id)}">
-            <i class="fa-solid ${automation.active ? "fa-toggle-on" : "fa-toggle-off"}"></i>
-            ${automation.active ? "Ativa" : "Inativa"}
-          </button>
-        </article>
-      `;
-    })
-    .join("");
+  
+  // Mapeando a lista de automações via Component Factory
+  grid.innerHTML = state.automations.map((automation) => {
+    return SupremeUI.automationCard({
+        id: automation.id,
+        name: automation.name,
+        description: automation.description,
+        icon: automation.icon,
+        active: automation.active
+    });
+  }).join("");
 }
 
 function toggleAutomation(id) {
   const automation = state.automations.find((item) => item.id === id);
-
-  if (!automation) {
-    return;
-  }
+  if (!automation) return;
 
   automation.active = !automation.active;
   renderAutomations();
-
   showTechToast(`Automação ${automation.active ? "ativada" : "desativada"}.`, "info");
 }
 
 function createAutomation() {
   const id = `auto-${String(state.automations.length + 1).padStart(3, "0")}`;
-
   state.automations.push({
-    id,
-    name: "Webhook para CRM externo",
-    description: "Envia eventos de conversa e oportunidade para sistemas externos via webhook.",
-    icon: "fa-solid fa-plug-circle-bolt",
-    active: false
+    id, name: "Webhook para CRM externo", description: "Envia eventos de conversa e oportunidade para sistemas externos via webhook.", icon: "fa-solid fa-plug-circle-bolt", active: false
   });
 
   renderAutomations();
-
   showTechToast("Nova automação criada.", "success");
 }
 
 function renderContracts() {
   const table = document.getElementById("contracts-table");
-
   table.innerHTML = state.contracts
     .map((contract) => {
       const statusClass = contract.status === "Ativo" ? "status-open" : contract.status === "Proposta enviada" ? "status-pending" : "status-resolved";
-
       return `
         <tr>
           <td>${escapeHTML(contract.client)}</td>
@@ -898,19 +667,18 @@ function renderContracts() {
           <td>${escapeHTML(contract.due)}</td>
         </tr>
       `;
-    })
-    .join("");
+    }).join("");
 }
+
+// ==========================================================================
+// 6. FUNÇÕES DE CONFIGURAÇÃO (WHITE-LABEL, BACKEND, IA)
+// ==========================================================================
 
 function handleLogoUpload(event) {
   const file = event.target.files[0];
-
-  if (!file) {
-    return;
-  }
+  if (!file) return;
 
   const allowedTypes = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
-
   if (!allowedTypes.includes(file.type)) {
     showTechToast("Formato inválido. Use PNG, JPG, WEBP ou SVG.", "error");
     event.target.value = "";
@@ -918,7 +686,6 @@ function handleLogoUpload(event) {
   }
 
   const maxSizeInBytes = 1024 * 1024;
-
   if (file.size > maxSizeInBytes) {
     showTechToast("A imagem deve ter no máximo 1MB.", "error");
     event.target.value = "";
@@ -926,18 +693,13 @@ function handleLogoUpload(event) {
   }
 
   const reader = new FileReader();
-
   reader.onload = () => {
     state.uploadedLogoDataUrl = String(reader.result);
     document.getElementById("file-name-display").textContent = file.name;
     document.getElementById("client-logo-sidebar").src = state.uploadedLogoDataUrl;
     showTechToast("Logomarca carregada. Clique em aplicar para salvar.", "info");
   };
-
-  reader.onerror = () => {
-    showTechToast("Não foi possível carregar a imagem.", "error");
-  };
-
+  reader.onerror = () => showTechToast("Não foi possível carregar a imagem.", "error");
   reader.readAsDataURL(file);
 }
 
@@ -950,11 +712,7 @@ function applyWhiteLabel() {
   let finalLogo = state.uploadedLogoDataUrl || document.getElementById("client-logo-sidebar").src;
 
   if (logoUrl) {
-    if (!isValidURL(logoUrl)) {
-      showTechToast("URL da logomarca inválida.", "error");
-      return;
-    }
-
+    if (!isValidURL(logoUrl)) return showTechToast("URL da logomarca inválida.", "error");
     finalLogo = logoUrl;
   }
 
@@ -964,47 +722,25 @@ function applyWhiteLabel() {
   document.documentElement.style.setProperty("--accent", accentColor);
   document.getElementById("client-logo-sidebar").src = finalLogo;
 
-  const config = {
-    bgColor,
-    primaryColor,
-    accentColor,
-    logoUrl: finalLogo
-  };
-
+  const config = { bgColor, primaryColor, accentColor, logoUrl: finalLogo };
   localStorage.setItem(SUPREME_STORAGE_KEYS.whiteLabel, JSON.stringify(config));
-
   showTechToast("Identidade visual aplicada com sucesso.", "success");
 }
 
 function loadSavedWhiteLabel() {
   const rawConfig = localStorage.getItem(SUPREME_STORAGE_KEYS.whiteLabel);
-
-  if (!rawConfig) {
-    return;
-  }
+  if (!rawConfig) return;
 
   try {
     const config = JSON.parse(rawConfig);
-
-    if (config.bgColor) {
-      document.documentElement.style.setProperty("--bg-dark", config.bgColor);
-      document.getElementById("wl-bg").value = config.bgColor;
-    }
-
+    if (config.bgColor) { document.documentElement.style.setProperty("--bg-dark", config.bgColor); document.getElementById("wl-bg").value = config.bgColor; }
     if (config.primaryColor) {
       document.documentElement.style.setProperty("--primary", config.primaryColor);
       document.documentElement.style.setProperty("--primary-strong", lightenHex(config.primaryColor, 22));
       document.getElementById("wl-primary").value = config.primaryColor;
     }
-
-    if (config.accentColor) {
-      document.documentElement.style.setProperty("--accent", config.accentColor);
-      document.getElementById("wl-accent").value = config.accentColor;
-    }
-
-    if (config.logoUrl) {
-      document.getElementById("client-logo-sidebar").src = config.logoUrl;
-    }
+    if (config.accentColor) { document.documentElement.style.setProperty("--accent", config.accentColor); document.getElementById("wl-accent").value = config.accentColor; }
+    if (config.logoUrl) { document.getElementById("client-logo-sidebar").src = config.logoUrl; }
   } catch {
     localStorage.removeItem(SUPREME_STORAGE_KEYS.whiteLabel);
   }
@@ -1014,30 +750,19 @@ function saveBackendConfig() {
   const backendURL = document.getElementById("backend-url").value.trim();
   const accountId = document.getElementById("chatwoot-account").value.trim();
 
-  if (backendURL && !isValidURL(backendURL)) {
-    showTechToast("URL do backend inválida.", "error");
-    return;
-  }
+  if (backendURL && !isValidURL(backendURL)) return showTechToast("URL do backend inválida.", "error");
 
-  const config = {
-    backendURL,
-    accountId
-  };
-
+  const config = { backendURL, accountId };
   localStorage.setItem(SUPREME_STORAGE_KEYS.backend, JSON.stringify(config));
   showTechToast("Conexão segura salva. Token deve permanecer no backend.", "success");
 }
 
 function loadSavedBackendConfig() {
   const rawConfig = localStorage.getItem(SUPREME_STORAGE_KEYS.backend);
-
-  if (!rawConfig) {
-    return;
-  }
+  if (!rawConfig) return;
 
   try {
     const config = JSON.parse(rawConfig);
-
     document.getElementById("backend-url").value = config.backendURL || "";
     document.getElementById("chatwoot-account").value = config.accountId || "";
   } catch {
@@ -1049,71 +774,44 @@ function saveAIConfig() {
   const tone = document.getElementById("ai-tone").value;
   const autosummary = document.getElementById("ai-autosummary").value;
 
-  localStorage.setItem(
-    SUPREME_STORAGE_KEYS.ai,
-    JSON.stringify({
-      tone,
-      autosummary
-    })
-  );
-
+  localStorage.setItem(SUPREME_STORAGE_KEYS.ai, JSON.stringify({ tone, autosummary }));
   showTechToast("Configurações de IA salvas.", "success");
 }
 
 function loadSavedAIConfig() {
   const rawConfig = localStorage.getItem(SUPREME_STORAGE_KEYS.ai);
-
-  if (!rawConfig) {
-    return;
-  }
+  if (!rawConfig) return;
 
   try {
     const config = JSON.parse(rawConfig);
-
-    if (config.tone) {
-      document.getElementById("ai-tone").value = config.tone;
-    }
-
-    if (config.autosummary) {
-      document.getElementById("ai-autosummary").value = config.autosummary;
-    }
+    if (config.tone) document.getElementById("ai-tone").value = config.tone;
+    if (config.autosummary) document.getElementById("ai-autosummary").value = config.autosummary;
   } catch {
     localStorage.removeItem(SUPREME_STORAGE_KEYS.ai);
   }
 }
+
+// ==========================================================================
+// 7. FUNÇÕES UTILITÁRIAS E FORMATADORES
+// ==========================================================================
 
 function getActiveConversation() {
   return state.conversations.find((conversation) => conversation.id === state.activeConversationId);
 }
 
 function getLastMessage(conversation) {
-  return conversation.messages[conversation.messages.length - 1] || {
-    text: "",
-    time: ""
-  };
+  return conversation.messages[conversation.messages.length - 1] || { text: "", time: "" };
 }
 
 function getChannelBadge(channel) {
   const normalized = channel.toLowerCase();
-
-  if (normalized === "whatsapp") {
-    return '<span class="badge whatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</span>';
-  }
-
-  if (normalized === "instagram") {
-    return '<span class="badge instagram"><i class="fa-brands fa-instagram"></i> Instagram</span>';
-  }
-
+  if (normalized === "whatsapp") return '<span class="badge whatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</span>';
+  if (normalized === "instagram") return '<span class="badge instagram"><i class="fa-brands fa-instagram"></i> Instagram</span>';
   return '<span class="badge email"><i class="fa-solid fa-envelope"></i> E-mail</span>';
 }
 
 function getStatusLabel(status) {
-  const labels = {
-    open: "Aberto",
-    pending: "Pendente",
-    resolved: "Resolvido"
-  };
-
+  const labels = { open: "Aberto", pending: "Pendente", resolved: "Resolvido" };
   return labels[status] || status;
 }
 
@@ -1122,27 +820,20 @@ function showTechToast(message, type = "info") {
   const toast = document.createElement("div");
 
   const normalizedType = ["success", "error", "info"].includes(type) ? type : "info";
-  const iconClass = normalizedType === "success"
-    ? "fa-circle-check"
-    : normalizedType === "error"
-      ? "fa-circle-xmark"
-      : "fa-circle-info";
+  const iconClass = normalizedType === "success" ? "fa-circle-check" : normalizedType === "error" ? "fa-circle-xmark" : "fa-circle-info";
 
   toast.className = `tech-toast toast-${normalizedType}`;
 
   const icon = document.createElement("div");
   icon.className = "toast-icon";
-
   const iconElement = document.createElement("i");
   iconElement.className = `fa-solid ${iconClass}`;
   icon.appendChild(iconElement);
 
   const body = document.createElement("div");
   body.className = "toast-body";
-
   const title = document.createElement("h4");
   title.textContent = normalizedType === "success" ? "Sucesso" : normalizedType === "error" ? "Atenção" : "Informação";
-
   const text = document.createElement("p");
   text.textContent = message;
 
@@ -1158,25 +849,17 @@ function showTechToast(message, type = "info") {
 
   container.appendChild(toast);
 
-  requestAnimationFrame(() => {
-    toast.classList.add("show");
-  });
+  requestAnimationFrame(() => toast.classList.add("show"));
 
   window.setTimeout(() => {
     toast.classList.remove("show");
-
-    window.setTimeout(() => {
-      toast.remove();
-    }, 300);
+    window.setTimeout(() => toast.remove(), 300);
   }, 4000);
 }
 
 function setText(id, text) {
   const element = document.getElementById(id);
-
-  if (element) {
-    element.textContent = text;
-  }
+  if (element) element.textContent = text;
 }
 
 function escapeHTML(value) {
@@ -1189,27 +872,16 @@ function escapeHTML(value) {
 }
 
 function formatCurrency(value) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    maximumFractionDigits: 0
-  }).format(Number(value) || 0);
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(Number(value) || 0);
 }
 
 function getCurrentTime() {
-  return new Intl.DateTimeFormat("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit"
-  }).format(new Date());
+  return new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(new Date());
 }
 
 function capitalize(value) {
   const stringValue = String(value || "");
-
-  if (!stringValue) {
-    return "";
-  }
-
+  if (!stringValue) return "";
   return stringValue.charAt(0).toUpperCase() + stringValue.slice(1);
 }
 
@@ -1224,15 +896,10 @@ function isValidURL(value) {
 
 function lightenHex(hex, percentage) {
   const normalized = hex.replace("#", "");
-
-  if (normalized.length !== 6) {
-    return hex;
-  }
-
+  if (normalized.length !== 6) return hex;
   const number = parseInt(normalized, 16);
   const red = Math.min(255, (number >> 16) + Math.round(255 * (percentage / 100)));
   const green = Math.min(255, ((number >> 8) & 255) + Math.round(255 * (percentage / 100)));
   const blue = Math.min(255, (number & 255) + Math.round(255 * (percentage / 100)));
-
   return `#${((1 << 24) + (red << 16) + (green << 8) + blue).toString(16).slice(1)}`;
 }
