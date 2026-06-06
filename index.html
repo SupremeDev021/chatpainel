@@ -3,117 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supreme Tech | Painel de Gestão</title>
+    <title>Supreme Tech | Portal do Cliente</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <div class="saas-layout">
-        
-        <aside class="sidebar">
-            <div class="brand">
-                <span class="logo-icon">🦅</span>
-                <h2>Supreme Tech</h2>
-            </div>
-            
-            <nav class="main-nav">
-                <p class="nav-label">MENU PRINCIPAL</p>
-                <ul id="nav-list">
-                    <li class="nav-item" data-target="dashboard">
-                        <span class="icon">📊</span> Visão Geral
-                    </li>
-                    <li class="nav-item active" data-target="inbox">
-                        <span class="icon">💬</span> Atendimento
-                    </li>
-                    <li class="nav-item" data-target="crm">
-                        <span class="icon">📇</span> CRM & Vendas <span class="badge premium">PRO</span>
-                    </li>
-                    <li class="nav-item" data-target="campaigns">
-                        <span class="icon">🚀</span> Disparos
-                    </li>
-                </ul>
+    <div id="login-screen">
+        <div id="led-background">
+            <div class="led-line" style="left: 20%;"><div class="led-light"></div></div>
+            <div class="led-line" style="left: 80%;"><div class="led-light gold"></div></div>
+        </div>
 
-                <p class="nav-label">SISTEMA</p>
-                <ul>
-                    <li class="nav-item" data-target="settings">
-                        <span class="icon">⚙️</span> Configurações
-                    </li>
-                </ul>
-            </nav>
-            
-            <div class="user-profile">
-                <div class="avatar">C</div>
-                <div class="info">
-                    <strong>Cliente</strong>
-                    <span>Plano Atendimento</span>
+        <div class="login-box">
+            <img src="https://via.placeholder.com/160x60?text=SUPREME+TECH" alt="Supreme Tech Logo" class="logo-login">
+            <h2>Portal do Cliente</h2>
+            <p>Acesso Restrito</p>
+
+            <div class="error-msg" id="login-error">Credenciais inválidas. Tente novamente.</div>
+
+            <form id="login-form">
+                <div class="input-group">
+                    <label>E-mail Corporativo</label>
+                    <input type="email" id="email" class="form-control" placeholder="seu@email.com" required>
                 </div>
+                <div class="input-group">
+                    <label>Senha de Acesso</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 15px;">
+                    <i class="fas fa-sign-in-alt"></i> Entrar no Sistema
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard">
+        <aside class="sidebar">
+            <div class="logo-area-sidebar">
+                <img src="https://via.placeholder.com/45?text=S" alt="S" class="logo-sidebar">
+                <span>Supreme Tech</span>
+            </div>
+
+            <div class="sidebar-menu">
+                <p class="menu-tag">GERENCIAMENTO</p>
+                <div class="menu-item active" data-target="panel-home">
+                    <i class="fas fa-home"></i> Visão Geral
+                </div>
+                <div class="menu-item visible" data-target="panel-chat">
+                    <i class="fas fa-comments"></i> Atendimento Central
+                </div>
+                <div class="menu-item visible" data-target="panel-catalogo">
+                    <i class="fas fa-box-open"></i> Meus Catálogos
+                </div>
+                <div class="menu-item visible" data-target="panel-config">
+                    <i class="fas fa-robot"></i> Configurações da IA
+                </div>
+            </div>
+
+            <div style="margin-top: auto; padding: 25px;">
+                <button id="btn-logout" class="btn btn-logout">
+                    <i class="fas fa-power-off"></i> Sair
+                </button>
             </div>
         </aside>
 
-        <main class="content-area">
-            
-            <section id="dashboard" class="module">
-                <header class="module-header">
-                    <h1>Visão Geral para o Seu Negócio</h1>
-                </header>
-                <div class="cards-grid">
-                    <div class="stat-card"><h3>Em Andamento</h3><p>12</p></div>
-                    <div class="stat-card"><h3>Atendidos (Hoje)</h3><p>48</p></div>
-                    <div class="stat-card"><h3>Tempo Médio</h3><p>2m 30s</p></div>
+        <main class="main-content">
+            <div class="header-dash">
+                <div>
+                    <h1>Olá, <span id="user-name-display">Cliente</span></h1>
+                    <span class="badge">Plano: Gestão Suprema</span>
+                </div>
+            </div>
+
+            <section id="panel-home" class="section-panel active">
+                <h2>Resumo da Operação</h2>
+                <div class="upsell-box" style="margin-top: 30px;">
+                    <h3>Ecossistema Operante</h3>
+                    <p>Sua inteligência artificial está ativa e monitorando o fluxo de mensagens. Acesse a aba de configurações para gerenciar o comportamento do Supreminho.</p>
                 </div>
             </section>
 
-            <section id="inbox" class="module active">
-                <header class="module-header">
-                    <h1>Caixa de Entrada Omnichannel</h1>
-                </header>
-                <div class="chat-interface">
-                    <div class="chat-messages" id="chat-messages">
-                        <div class="msg bot">Bem-vindo à central de atendimento.</div>
-                    </div>
-                    <div class="chat-input-area">
-                        <input type="text" placeholder="Digite sua mensagem...">
-                        <button>Enviar</button>
-                    </div>
-                </div>
-            </section>
-
-            <section id="crm" class="module">
-                <header class="module-header">
-                    <h1>CRM e Pipeline de Vendas</h1>
-                    <button class="btn-primary" id="add-lead-btn">+ Novo Lead</button>
-                </header>
+            <section id="panel-chat" class="section-panel">
+                <h2>Central de Atendimento</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Integração direta com o motor Chatwoot via API.</p>
                 
-                <div class="lock-overlay" id="crm-lock">
-                    <div class="lock-content">
-                        <span class="lock-icon">🔒</span>
-                        <h2>Módulo de Gestão Suprema</h2>
-                        <p>Oculte planilhas soltas e gerencie seus clientes em um Kanban visual integrado ao WhatsApp.</p>
-                        <button class="btn-upgrade" onclick="requestUpgrade()">Falar com Consultor</button>
-                    </div>
-                </div>
-
-                <div class="kanban-board" id="kanban-board">
-                    <div class="kanban-column">
-                        <h3>Novos Leads <span>2</span></h3>
-                        <div class="kanban-card">João Silva <span class="tag">WhatsApp</span></div>
-                        <div class="kanban-card">Maria Souza <span class="tag">Landing Page</span></div>
-                    </div>
-                    <div class="kanban-column">
-                        <h3>Em Negociação <span>1</span></h3>
-                        <div class="kanban-card">Costa Lima Odontologia <span class="tag hot">Quente</span></div>
-                    </div>
-                    <div class="kanban-column">
-                        <h3>Fechados <span>0</span></h3>
-                    </div>
+                <div style="height: 400px; border: 1px dashed var(--border-color); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-direction: column; background: rgba(0,0,0,0.2);">
+                    <i class="fas fa-comment-slash" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px;"></i>
+                    <h3 style="margin: 0; color: #fff;">Sincronizando Conversas...</h3>
+                    <p style="color: var(--text-muted); font-size: 13px;">Conectando ao Webhook do Chatwoot via WebSockets.</p>
                 </div>
             </section>
 
-            <section id="campaigns" class="module"><header class="module-header"><h1>Disparos em Massa</h1></header></section>
-            <section id="settings" class="module"><header class="module-header"><h1>Configurações da Conta</h1></header></section>
+            <section id="panel-catalogo" class="section-panel">
+                <h2>Gerenciar Catálogos</h2>
+                <p style="color: var(--text-muted);">Configure os itens que a IA pode oferecer aos seus clientes.</p>
+                
+                <div class="catalogo-header">
+                    <h3>Departamentos Ativos</h3>
+                    <button class="btn-add-cat" onclick="adicionarCategoria()">
+                        <i class="fas fa-plus"></i> Nova Categoria
+                    </button>
+                </div>
+
+                <div id="catalogo-container">
+                    </div>
+                
+                <button class="btn btn-primary" style="margin-top: 30px; width: auto;" onclick="salvarCatalogo()">
+                    <i class="fas fa-save"></i> Salvar Alterações
+                </button>
+            </section>
+
+            <section id="panel-config" class="section-panel">
+                <h2>Configurações da IA</h2>
+                
+                <div class="emergency-panel">
+                    <div class="emergency-text">
+                        <h3>Pausa de Emergência (Kill Switch)</h3>
+                        <p>Desativa temporariamente o Supreminho. O atendimento passará a ser 100% humano.</p>
+                    </div>
+                    <label class="switch-container">
+                        <span class="switch-label">STATUS</span>
+                        <div class="switch">
+                            <input type="checkbox" id="kill-switch" onchange="toggleIA(this)">
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                </div>
+
+                <h3>Prompt Base do Sistema</h3>
+                <div class="input-group">
+                    <textarea class="form-control" id="ia-prompt" style="height: 200px;" placeholder="Defina regras extras para o assistente..."></textarea>
+                </div>
+                <button class="btn btn-primary" style="width: auto;" onclick="salvarConfigIA()">Atualizar IA</button>
+            </section>
 
         </main>
     </div>
+
+    <div id="toast-container"></div>
 
     <script src="app.js"></script>
 </body>
