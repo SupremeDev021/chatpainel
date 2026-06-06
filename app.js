@@ -1,8 +1,3 @@
-# APP.JS
-
-```javascript
-"use strict";
-
 const SUPREME_STORAGE_KEYS = {
   whiteLabel: "supreme_whitelabel_config",
   backend: "supreme_backend_config",
