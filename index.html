@@ -1,226 +1,609 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supreme CRM | Enterprise Omni-channel</title>
-    <link rel="stylesheet" href="crm.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Supreme Tech - Plataforma premium de atendimento, automações, IA, CRM e gestão empresarial." />
+  <title>Supreme Tech | Atendimento, IA e Automações</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="CRM.css" />
 </head>
-<body class="crm-body">
 
-    <div class="saas-layout">
-        <nav class="saas-sidebar">
-            <div class="saas-logo">
-                <img id="client-logo-sidebar" src="https://via.placeholder.com/40?text=S" alt="Logo">
-            </div>
-            <div class="saas-menu">
-                <button class="saas-btn active" onclick="switchModule('module-chat')" title="Inbox Omnichannel">
-                    <i class="fas fa-inbox"></i>
-                </button>
-                <button class="saas-btn" onclick="switchModule('module-kanban')" title="Funil de Vendas (Kanban)">
-                    <i class="fas fa-columns"></i>
-                </button>
-                <button class="saas-btn" onclick="switchModule('module-contacts')" title="Base de Contatos">
-                    <i class="fas fa-users"></i>
-                </button>
-                <button class="saas-btn" onclick="switchModule('module-settings')" title="Configurações e White-Label">
-                    <i class="fas fa-cog"></i>
-                </button>
-            </div>
-            <div class="saas-profile">
-                <div class="avatar-sm" id="user-initials">OP</div>
-            </div>
-        </nav>
+<body>
+  <div class="app-shell">
+    <aside class="saas-sidebar" aria-label="Menu principal">
+      <div class="brand-area">
+        <div class="brand-orb"></div>
+        <img id="client-logo-sidebar" class="brand-logo" src="https://dummyimage.com/96x96/111827/d4af37.png&text=ST" alt="Supreme Tech" />
+      </div>
 
-        <div class="saas-content">
-            
-            <div id="module-chat" class="app-module active">
-                <div class="crm-container">
-                    <aside class="chat-list-column">
-                        <div class="search-box">
-                            <i class="fas fa-search"></i>
-                            <input type="text" placeholder="Buscar ticket, nome ou número...">
-                        </div>
-                        <div class="inbox-filter">
-                            <button class="filter-btn active">Meus Tickets</button>
-                            <button class="filter-btn">Aguardando</button>
-                            <button class="filter-btn">Resolvidos</button>
-                        </div>
-                        <div class="conversations-list" id="chat-list">
-                            </div>
-                    </aside>
+      <nav class="saas-menu">
+        <button class="saas-btn active" type="button" data-module="dashboard" aria-label="Dashboard" title="Dashboard">
+          <i class="fa-solid fa-chart-pie"></i>
+        </button>
 
-                    <main class="chat-window-column">
-                        <div class="chat-header">
-                            <div class="chat-header-info">
-                                <h3 id="current-chat-name">Selecione uma conversa</h3>
-                                <p id="current-chat-phone">---</p>
-                            </div>
-                            <div class="chat-header-actions">
-                                <select class="form-control-sm assign-select" title="Atribuir Agente">
-                                    <option value="unassigned">Não Atribuído</option>
-                                    <option value="agent1" selected>Operador Principal</option>
-                                </select>
-                                <button class="btn-icon danger" title="Resolver Ticket" onclick="fecharTicket()"><i class="fas fa-check-circle"></i></button>
-                            </div>
-                        </div>
-                        
-                        <div class="chat-history" id="chat-history">
-                            <div class="empty-state">
-                                <i class="fas fa-comments"></i>
-                                <p>Inbox Omnichannel</p>
-                            </div>
-                        </div>
+        <button class="saas-btn" type="button" data-module="inbox" aria-label="Central de Atendimento" title="Central de Atendimento">
+          <i class="fa-solid fa-comments"></i>
+        </button>
 
-                        <div class="macros-bar">
-                            <span class="macro-tag" onclick="insertMacro('Olá! Como posso ajudar hoje?')">/ola</span>
-                            <span class="macro-tag" onclick="insertMacro('Aguarde um momento enquanto verifico o sistema.')">/espera</span>
-                            <span class="macro-tag" onclick="insertMacro('Seu problema foi resolvido. Podemos fechar o chamado?')">/resolvido</span>
-                        </div>
+        <button class="saas-btn" type="button" data-module="crm" aria-label="CRM" title="CRM">
+          <i class="fa-solid fa-diagram-project"></i>
+        </button>
 
-                        <div class="chat-input-area" id="input-area">
-                            <div class="input-tools">
-                                <button class="btn-attach" title="Anexar Arquivo"><i class="fas fa-paperclip"></i></button>
-                                <label class="toggle-internal" title="Alternar Nota Interna">
-                                    <input type="checkbox" id="toggle-note" onchange="toggleInternalNote()">
-                                    <i class="fas fa-lock"></i>
-                                </label>
-                            </div>
-                            <textarea id="msg-input" placeholder="Digite sua mensagem ao cliente..."></textarea>
-                            <button class="btn-send glow-effect" id="btn-send" onclick="enviarMensagem()"><i class="fas fa-paper-plane"></i></button>
-                        </div>
-                    </main>
+        <button class="saas-btn" type="button" data-module="automations" aria-label="Automações" title="Automações">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </button>
 
-                    <aside class="crm-details-column">
-                        <div class="crm-section">
-                            <h3>Detalhes do Lead</h3>
-                            <div class="crm-field">
-                                <label>Nome</label>
-                                <input type="text" id="crm-name" class="form-control-sm" readonly>
-                            </div>
-                            <div class="crm-field">
-                                <label>Contato</label>
-                                <input type="text" id="crm-phone" class="form-control-sm" readonly>
-                            </div>
-                        </div>
-                        <div class="crm-section">
-                            <h3>Etiquetas</h3>
-                            <div class="tags-container" id="crm-tags"></div>
-                        </div>
-                    </aside>
-                </div>
+        <button class="saas-btn" type="button" data-module="management" aria-label="Gestão Empresarial" title="Gestão Empresarial">
+          <i class="fa-solid fa-building-shield"></i>
+        </button>
+
+        <button class="saas-btn" type="button" data-module="settings" aria-label="Configurações" title="Configurações">
+          <i class="fa-solid fa-sliders"></i>
+        </button>
+      </nav>
+
+      <div class="saas-profile" title="Usuário logado">
+        <div class="avatar-sm">ST</div>
+      </div>
+    </aside>
+
+    <main class="saas-content">
+      <section id="module-dashboard" class="app-module active" aria-labelledby="dashboard-title">
+        <header class="module-header">
+          <div>
+            <p class="eyebrow">Visão executiva</p>
+            <h1 id="dashboard-title">Dashboard Principal</h1>
+          </div>
+
+          <div class="header-actions">
+            <button class="btn btn-ghost" type="button" id="btn-refresh-dashboard">
+              <i class="fa-solid fa-rotate"></i>
+              Atualizar
+            </button>
+
+            <button class="btn btn-primary" type="button" data-module-open="inbox">
+              <i class="fa-solid fa-headset"></i>
+              Abrir Atendimento
+            </button>
+          </div>
+        </header>
+
+        <div class="dashboard-scroll">
+          <div class="hero-panel">
+            <div>
+              <span class="status-pill">
+                <span class="live-dot"></span>
+                Operação em tempo real
+              </span>
+              <h2>Central inteligente de atendimento, vendas e automações.</h2>
+              <p>
+                Monitore leads, conversões, tempo de resposta, eficiência da equipe e receita gerada em uma experiência SaaS premium.
+              </p>
             </div>
 
-            <div id="module-kanban" class="app-module">
-                <div class="module-header">
-                    <h2>Pipeline de Vendas</h2>
-                    <button class="btn btn-primary glow-effect"><i class="fas fa-plus"></i> Nova Etapa</button>
-                </div>
-                <div class="kanban-board">
-                    <div class="kanban-column">
-                        <div class="kanban-header">
-                            <h3>Em Negociação <span class="badge-count">1</span></h3>
-                        </div>
-                        <div class="kanban-cards">
-                            <div class="k-card" draggable="true">
-                                <div class="k-card-tags"><span class="tag" style="--tag-color: var(--primary);">VIP</span></div>
-                                <h4>Empresa Cliente S/A</h4>
-                                <p class="k-preview">Avaliando contrato...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="hero-metrics">
+              <div>
+                <strong id="hero-score">94%</strong>
+                <span>Eficiência operacional</span>
+              </div>
+              <div>
+                <strong id="hero-ai">37</strong>
+                <span>Ações de IA hoje</span>
+              </div>
             </div>
+          </div>
 
-            <div id="module-contacts" class="app-module">
-                <div class="module-header">
-                    <h2>Base de Contatos</h2>
-                    <div class="header-actions">
-                        <button class="btn btn-secondary"><i class="fas fa-download"></i> Exportar CSV</button>
-                        <button class="btn btn-primary glow-effect" onclick="showTechToast('Abrindo formulário de cadastro...', 'info')"><i class="fas fa-user-plus"></i> Novo Contato</button>
-                    </div>
+          <div class="kpi-grid">
+            <article class="kpi-card">
+              <div class="kpi-icon accent">
+                <i class="fa-solid fa-user-plus"></i>
+              </div>
+              <div>
+                <span>Leads recebidos</span>
+                <strong id="kpi-leads">0</strong>
+                <small>Últimas 24h</small>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon success">
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
+              <div>
+                <span>Conversões</span>
+                <strong id="kpi-conversions">0</strong>
+                <small>Oportunidades ganhas</small>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon warning">
+                <i class="fa-solid fa-comments"></i>
+              </div>
+              <div>
+                <span>Atendimentos ativos</span>
+                <strong id="kpi-active">0</strong>
+                <small>Em andamento</small>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon primary">
+                <i class="fa-solid fa-clock"></i>
+              </div>
+              <div>
+                <span>Tempo médio de resposta</span>
+                <strong id="kpi-response">0m</strong>
+                <small>Meta: abaixo de 5m</small>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon violet">
+                <i class="fa-solid fa-users-gear"></i>
+              </div>
+              <div>
+                <span>Eficiência da equipe</span>
+                <strong id="kpi-efficiency">0%</strong>
+                <small>SLA + resoluções</small>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon money">
+                <i class="fa-solid fa-sack-dollar"></i>
+              </div>
+              <div>
+                <span>Receita gerada</span>
+                <strong id="kpi-revenue">R$ 0</strong>
+                <small>Pipeline fechado</small>
+              </div>
+            </article>
+          </div>
+
+          <div class="analytics-grid">
+            <article class="premium-card">
+              <div class="card-heading">
+                <div>
+                  <p class="eyebrow">Performance</p>
+                  <h3>Volume por canal</h3>
                 </div>
-                <div class="contacts-wrapper">
-                    <table class="tech-table">
-                        <thead>
-                            <tr>
-                                <th>Nome / Empresa</th>
-                                <th>Telefone / WhatsApp</th>
-                                <th>Origem</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="contacts-table-body">
-                            </tbody>
-                    </table>
+                <i class="fa-solid fa-signal"></i>
+              </div>
+
+              <div class="channel-list">
+                <div class="channel-row">
+                  <span><i class="fa-brands fa-whatsapp"></i> WhatsApp</span>
+                  <div class="bar"><div style="width: 78%"></div></div>
+                  <strong>78%</strong>
                 </div>
-            </div>
 
-            <div id="module-settings" class="app-module">
-                <div class="module-header">
-                    <h2>Configurações do Workspace</h2>
+                <div class="channel-row">
+                  <span><i class="fa-brands fa-instagram"></i> Instagram</span>
+                  <div class="bar"><div style="width: 42%"></div></div>
+                  <strong>42%</strong>
                 </div>
-                <div class="settings-grid">
-                    
-                    <div class="settings-card white-label-card">
-                        <h3><i class="fas fa-paint-brush"></i> Identidade Visual (White-Label)</h3>
-                        <p class="text-muted">Personalize as cores e a logo para deixar com a cara da sua empresa.</p>
-                        
-                        <div class="crm-field">
-                            <label>Upload da Logomarca (Imagem)</label>
-                            <div class="file-upload-wrapper">
-                                <input type="file" id="wl-logo-file" accept="image/*" class="file-input-tech" onchange="handleLogoUpload(event)">
-                                <label for="wl-logo-file" class="file-btn"><i class="fas fa-upload"></i> Escolher Arquivo</label>
-                                <span id="file-name-display">Nenhum arquivo selecionado</span>
-                            </div>
-                        </div>
 
-                        <div class="crm-field">
-                            <label>Ou URL da Logomarca (Transparente)</label>
-                            <input type="text" id="wl-logo-url" class="form-control-sm" placeholder="https://site.com/logo.png">
-                        </div>
-                        
-                        <div class="color-pickers-row">
-                            <div class="crm-field">
-                                <label>Cor do Fundo (Background)</label>
-                                <input type="color" id="wl-bg" class="color-picker-lg" value="#0A192F">
-                            </div>
-                            <div class="crm-field">
-                                <label>Cor Primária (Destaques)</label>
-                                <input type="color" id="wl-primary" class="color-picker-lg" value="#D4AF37">
-                            </div>
-                            <div class="crm-field">
-                                <label>Cor Secundária (Ações)</label>
-                                <input type="color" id="wl-accent" class="color-picker-lg" value="#00D2FF">
-                            </div>
-                        </div>
-                        
-                        <button class="btn btn-primary glow-effect mt-20" onclick="applyWhiteLabel()"><i class="fas fa-save"></i> Aplicar Identidade</button>
-                    </div>
-
-                    <div class="settings-card">
-                        <h3><i class="fas fa-server"></i> Conexão Backend (Chatwoot)</h3>
-                        <p class="text-muted">Credenciais da API Headless.</p>
-                        <div class="crm-field">
-                            <label>Account ID</label>
-                            <input type="text" class="form-control-sm" value="2">
-                        </div>
-                        <div class="crm-field">
-                            <label>Token de Acesso (API)</label>
-                            <input type="password" class="form-control-sm" value="******************">
-                        </div>
-                        <button class="btn btn-primary glow-effect mt-20" onclick="showTechToast('Sincronizando com o Backend...', 'info')"><i class="fas fa-sync-alt"></i> Sincronizar</button>
-                    </div>
+                <div class="channel-row">
+                  <span><i class="fa-solid fa-envelope"></i> E-mail</span>
+                  <div class="bar"><div style="width: 31%"></div></div>
+                  <strong>31%</strong>
                 </div>
-            </div>
+              </div>
+            </article>
 
+            <article class="premium-card">
+              <div class="card-heading">
+                <div>
+                  <p class="eyebrow">Inteligência Artificial</p>
+                  <h3>Insights operacionais</h3>
+                </div>
+                <i class="fa-solid fa-brain"></i>
+              </div>
+
+              <ul class="insight-list" id="dashboard-insights"></ul>
+            </article>
+          </div>
         </div>
-    </div>
+      </section>
 
-    <div id="tech-toast-container"></div>
+      <section id="module-inbox" class="app-module" aria-labelledby="inbox-title">
+        <div class="crm-container">
+          <aside class="chat-list-column">
+            <header class="column-header">
+              <div>
+                <p class="eyebrow">Omnichannel</p>
+                <h2 id="inbox-title">Atendimentos</h2>
+              </div>
+              <button class="btn-icon" type="button" id="btn-new-conversation" aria-label="Nova conversa">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </header>
 
-    <script src="app.js"></script>
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input id="conversation-search" type="search" placeholder="Buscar contato, empresa ou mensagem..." autocomplete="off" />
+            </div>
+
+            <div class="inbox-filter" role="tablist" aria-label="Filtros de atendimento">
+              <button class="filter-btn active" type="button" data-filter="all">Todos</button>
+              <button class="filter-btn" type="button" data-filter="open">Abertos</button>
+              <button class="filter-btn" type="button" data-filter="pending">Pendentes</button>
+              <button class="filter-btn" type="button" data-filter="resolved">Resolvidos</button>
+            </div>
+
+            <div id="conversations-list" class="conversations-list"></div>
+          </aside>
+
+          <section class="chat-window-column">
+            <header class="chat-header">
+              <div class="chat-header-info">
+                <h3 id="active-contact-name">Selecione uma conversa</h3>
+                <p id="active-contact-meta">Nenhum atendimento selecionado</p>
+              </div>
+
+              <div class="chat-header-actions">
+                <select id="assign-select" class="assign-select" aria-label="Responsável pelo atendimento">
+                  <option>Ana Sales</option>
+                  <option>Bruno CX</option>
+                  <option>Carla Suporte</option>
+                  <option>IA Copilot</option>
+                </select>
+
+                <button class="btn-icon" type="button" id="btn-ai-summary" title="Gerar resumo com IA">
+                  <i class="fa-solid fa-sparkles"></i>
+                </button>
+
+                <button class="btn-icon" type="button" id="btn-resolve-conversation" title="Resolver atendimento">
+                  <i class="fa-solid fa-circle-check"></i>
+                </button>
+              </div>
+            </header>
+
+            <div id="chat-history" class="chat-history">
+              <div class="empty-state">
+                <i class="fa-regular fa-comments"></i>
+                <p>Selecione uma conversa para iniciar.</p>
+              </div>
+            </div>
+
+            <div class="macros-bar" aria-label="Macros rápidas">
+              <button class="macro-tag" type="button" data-macro="Olá! Sou da Supreme Tech. Como posso te ajudar hoje?">Saudação</button>
+              <button class="macro-tag" type="button" data-macro="Perfeito. Vou verificar isso para você agora.">Verificar</button>
+              <button class="macro-tag" type="button" data-macro="Posso te enviar uma proposta personalizada ainda hoje.">Proposta</button>
+              <button class="macro-tag ai" type="button" id="btn-ai-suggestion">Sugerir com IA</button>
+            </div>
+
+            <footer id="input-area" class="chat-input-area">
+              <div class="input-tools">
+                <button class="btn-attach" type="button" title="Anexar arquivo">
+                  <i class="fa-solid fa-paperclip"></i>
+                </button>
+
+                <label class="toggle-internal" title="Nota interna">
+                  <input id="toggle-note" type="checkbox" />
+                  <i class="fa-solid fa-lock"></i>
+                </label>
+              </div>
+
+              <textarea id="msg-input" placeholder="Digite sua mensagem ao cliente..." rows="1"></textarea>
+
+              <button id="btn-send" class="btn-send" type="button" aria-label="Enviar mensagem">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </footer>
+          </section>
+
+          <aside class="crm-details-column">
+            <section class="crm-section profile-card">
+              <div class="contact-avatar-lg" id="details-avatar">ST</div>
+              <h3 id="details-name">Contato</h3>
+              <p id="details-company">Empresa</p>
+
+              <div class="tag-row" id="details-tags"></div>
+            </section>
+
+            <section class="crm-section">
+              <h3>Dados inteligentes</h3>
+
+              <div class="info-row">
+                <span>Canal</span>
+                <strong id="details-channel">-</strong>
+              </div>
+
+              <div class="info-row">
+                <span>Telefone</span>
+                <strong id="details-phone">-</strong>
+              </div>
+
+              <div class="info-row">
+                <span>Valor estimado</span>
+                <strong id="details-value">-</strong>
+              </div>
+
+              <div class="info-row">
+                <span>Sentimento</span>
+                <strong id="details-sentiment">-</strong>
+              </div>
+            </section>
+
+            <section class="crm-section ai-panel">
+              <h3><i class="fa-solid fa-brain"></i> Copilot IA</h3>
+              <p id="ai-summary-output">Gere um resumo automático para visualizar o contexto da conversa.</p>
+
+              <button class="btn btn-secondary full" type="button" id="btn-analyze-sentiment">
+                <i class="fa-solid fa-face-smile"></i>
+                Analisar sentimento
+              </button>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <section id="module-crm" class="app-module" aria-labelledby="crm-title">
+        <header class="module-header">
+          <div>
+            <p class="eyebrow">Pipeline comercial</p>
+            <h1 id="crm-title">CRM Visual</h1>
+          </div>
+
+          <div class="header-actions">
+            <button class="btn btn-ghost" type="button" id="btn-add-opportunity">
+              <i class="fa-solid fa-plus"></i>
+              Nova oportunidade
+            </button>
+          </div>
+        </header>
+
+        <div id="kanban-board" class="kanban-board" aria-label="Pipeline CRM"></div>
+      </section>
+
+      <section id="module-automations" class="app-module" aria-labelledby="automation-title">
+        <header class="module-header">
+          <div>
+            <p class="eyebrow">Fluxos inteligentes</p>
+            <h1 id="automation-title">Automações</h1>
+          </div>
+
+          <div class="header-actions">
+            <button class="btn btn-primary" type="button" id="btn-create-automation">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              Criar automação
+            </button>
+          </div>
+        </header>
+
+        <div class="module-scroll">
+          <div class="automation-grid" id="automation-grid"></div>
+
+          <article class="premium-card flow-card">
+            <div class="card-heading">
+              <div>
+                <p class="eyebrow">Builder visual</p>
+                <h3>Exemplo de fluxo automatizado</h3>
+              </div>
+              <i class="fa-solid fa-code-branch"></i>
+            </div>
+
+            <div class="flow-line">
+              <div class="flow-node trigger">
+                <i class="fa-brands fa-whatsapp"></i>
+                Novo lead WhatsApp
+              </div>
+              <div class="flow-arrow"></div>
+              <div class="flow-node">
+                <i class="fa-solid fa-tags"></i>
+                Classificar interesse
+              </div>
+              <div class="flow-arrow"></div>
+              <div class="flow-node ai-node">
+                <i class="fa-solid fa-brain"></i>
+                IA sugere resposta
+              </div>
+              <div class="flow-arrow"></div>
+              <div class="flow-node success-node">
+                <i class="fa-solid fa-diagram-project"></i>
+                Criar oportunidade
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-management" class="app-module" aria-labelledby="management-title">
+        <header class="module-header">
+          <div>
+            <p class="eyebrow">Backoffice</p>
+            <h1 id="management-title">Gestão Empresarial</h1>
+          </div>
+
+          <div class="header-actions">
+            <button class="btn btn-ghost" type="button" id="btn-export-report">
+              <i class="fa-solid fa-file-export"></i>
+              Exportar relatório
+            </button>
+          </div>
+        </header>
+
+        <div class="module-scroll">
+          <div class="management-grid">
+            <article class="kpi-card">
+              <div class="kpi-icon money">
+                <i class="fa-solid fa-receipt"></i>
+              </div>
+              <div>
+                <span>MRR contratado</span>
+                <strong>R$ 48.900</strong>
+                <small>Receita recorrente mensal</small>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon success">
+                <i class="fa-solid fa-file-signature"></i>
+              </div>
+              <div>
+                <span>Contratos ativos</span>
+                <strong>23</strong>
+                <small>Clientes empresariais</small>
+              </div>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon warning">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <div>
+                <span>Cobranças pendentes</span>
+                <strong>4</strong>
+                <small>Requer atenção</small>
+              </div>
+            </article>
+          </div>
+
+          <div class="table-card">
+            <div class="card-heading">
+              <div>
+                <p class="eyebrow">Clientes e contratos</p>
+                <h3>Base empresarial</h3>
+              </div>
+              <i class="fa-solid fa-building"></i>
+            </div>
+
+            <div class="table-wrapper">
+              <table class="tech-table">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Plano</th>
+                    <th>Status</th>
+                    <th>MRR</th>
+                    <th>Vencimento</th>
+                  </tr>
+                </thead>
+                <tbody id="contracts-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="module-settings" class="app-module" aria-labelledby="settings-title">
+        <header class="module-header">
+          <div>
+            <p class="eyebrow">Administração</p>
+            <h1 id="settings-title">Configurações</h1>
+          </div>
+        </header>
+
+        <div class="module-scroll">
+          <div class="settings-grid">
+            <article class="settings-card white-label-card">
+              <h3><i class="fa-solid fa-paint-brush"></i> Identidade Visual White-Label</h3>
+              <p class="text-muted">Personalize a experiência visual da plataforma para sua operação.</p>
+
+              <div class="crm-field">
+                <label for="wl-logo-file">Upload da logomarca</label>
+                <div class="file-upload-wrapper">
+                  <input type="file" id="wl-logo-file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="file-input-tech" />
+                  <label for="wl-logo-file" class="file-btn">
+                    <i class="fa-solid fa-upload"></i>
+                    Escolher arquivo
+                  </label>
+                  <span id="file-name-display">Nenhum arquivo selecionado</span>
+                </div>
+              </div>
+
+              <div class="crm-field">
+                <label for="wl-logo-url">Ou URL da logomarca</label>
+                <input type="url" id="wl-logo-url" class="form-control-sm" placeholder="https://site.com/logo.png" />
+              </div>
+
+              <div class="color-pickers-row">
+                <div class="crm-field">
+                  <label for="wl-bg">Background</label>
+                  <input type="color" id="wl-bg" class="color-picker-lg" value="#070B16" />
+                </div>
+
+                <div class="crm-field">
+                  <label for="wl-primary">Cor primária</label>
+                  <input type="color" id="wl-primary" class="color-picker-lg" value="#D4AF37" />
+                </div>
+
+                <div class="crm-field">
+                  <label for="wl-accent">Cor de ação</label>
+                  <input type="color" id="wl-accent" class="color-picker-lg" value="#00D2FF" />
+                </div>
+              </div>
+
+              <button class="btn btn-primary glow-effect mt-20" type="button" id="btn-apply-whitelabel">
+                <i class="fa-solid fa-save"></i>
+                Aplicar identidade
+              </button>
+            </article>
+
+            <article class="settings-card">
+              <h3><i class="fa-solid fa-server"></i> Conexão Backend Chatwoot</h3>
+              <p class="text-muted">
+                Por segurança, tokens de API não devem ficar no front-end. Configure o token em um backend proxy.
+              </p>
+
+              <div class="crm-field">
+                <label for="backend-url">URL do Backend Proxy</label>
+                <input type="url" id="backend-url" class="form-control-sm" placeholder="https://api.suaempresa.com" />
+              </div>
+
+              <div class="crm-field">
+                <label for="chatwoot-account">Account ID Chatwoot</label>
+                <input type="text" id="chatwoot-account" class="form-control-sm" placeholder="Ex: 2" />
+              </div>
+
+              <button class="btn btn-secondary mt-20" type="button" id="btn-save-backend">
+                <i class="fa-solid fa-shield-halved"></i>
+                Salvar conexão segura
+              </button>
+            </article>
+
+            <article class="settings-card">
+              <h3><i class="fa-solid fa-robot"></i> Inteligência Artificial</h3>
+              <p class="text-muted">Defina o comportamento do assistente interno e das sugestões automáticas.</p>
+
+              <div class="crm-field">
+                <label for="ai-tone">Tom de voz</label>
+                <select id="ai-tone" class="form-control-sm">
+                  <option>Consultivo e premium</option>
+                  <option>Objetivo e técnico</option>
+                  <option>Comercial e persuasivo</option>
+                  <option>Suporte humanizado</option>
+                </select>
+              </div>
+
+              <div class="crm-field">
+                <label for="ai-autosummary">Resumo automático</label>
+                <select id="ai-autosummary" class="form-control-sm">
+                  <option>Ativado</option>
+                  <option>Desativado</option>
+                </select>
+              </div>
+
+              <button class="btn btn-secondary mt-20" type="button" id="btn-save-ai">
+                <i class="fa-solid fa-brain"></i>
+                Salvar IA
+              </button>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="tech-toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="APP.js"></script>
 </body>
 </html>
