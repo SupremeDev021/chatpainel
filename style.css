@@ -232,3 +232,79 @@ body {
     .chat-input-area { padding: 10px 15px; }
     #msg-input { padding: 12px 15px; font-size: 13px; }
 }
+/* ================= ARQUITETURA SAAS (MASTER LAYOUT) ================= */
+.saas-layout { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+
+/* BARRA LATERAL MESTRE */
+.saas-sidebar { 
+    width: 70px; background: #040912; border-right: 1px solid var(--border-color); 
+    display: flex; flex-direction: column; align-items: center; padding: 20px 0; z-index: 50;
+}
+.saas-logo img { width: 35px; border-radius: 8px; margin-bottom: 30px; }
+.saas-menu { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+.saas-btn { 
+    width: 100%; height: 50px; background: transparent; border: none; color: var(--text-muted); 
+    font-size: 20px; cursor: pointer; transition: 0.3s; position: relative;
+}
+.saas-btn:hover { color: var(--primary); }
+.saas-btn.active { color: var(--accent); background: rgba(0, 210, 255, 0.05); }
+.saas-btn.active::before { 
+    content: ''; position: absolute; left: 0; top: 10%; height: 80%; width: 3px; 
+    background: var(--accent); border-radius: 0 4px 4px 0; box-shadow: 0 0 10px var(--accent);
+}
+.saas-profile { margin-top: auto; }
+.avatar-sm { width: 35px; height: 35px; background: var(--card-bg); border: 1px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--primary); }
+
+/* ÁREA DE CONTEÚDO MULTI-MODULAR */
+.saas-content { flex: 1; position: relative; background: var(--bg-dark); }
+.app-module { display: none; height: 100%; width: 100%; animation: fadeIn 0.3s ease; }
+.app-module.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.module-header { padding: 30px 40px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); background: var(--sidebar-bg); }
+.module-header h2 { margin: 0; font-size: 1.5rem; color: #fff; }
+
+/* ================= KANBAN BOARD (FUNIL) ================= */
+.kanban-board { display: flex; gap: 25px; padding: 30px 40px; height: calc(100vh - 90px); overflow-x: auto; align-items: flex-start; }
+.kanban-column { 
+    min-width: 320px; width: 320px; background: var(--sidebar-bg); 
+    border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; max-height: 100%;
+}
+.kanban-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); border-top: 3px solid var(--accent); border-radius: 12px 12px 0 0; }
+.kanban-header h3 { margin: 0; font-size: 14px; display: flex; justify-content: space-between; align-items: center; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px;}
+.badge-count { background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 20px; font-size: 12px; }
+
+.kanban-cards { padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; flex: 1; }
+.k-card { 
+    background: var(--card-bg); padding: 18px; border-radius: 10px; border: 1px solid var(--border-color); 
+    cursor: grab; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.k-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(212, 175, 55, 0.15); }
+.k-card:active { cursor: grabbing; }
+.k-card-tags { margin-bottom: 10px; display: flex; gap: 5px; flex-wrap: wrap;}
+.k-card h4 { margin: 0 0 8px 0; font-size: 14px; color: #fff; }
+.k-preview { font-size: 12px; color: var(--text-muted); margin: 0 0 15px 0; }
+.k-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
+.k-date { font-size: 11px; color: var(--text-muted); }
+.avatar-xs { width: 22px; height: 22px; border-radius: 50%; background: rgba(0, 210, 255, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 10px; }
+
+/* ================= ETIQUETAS DINÂMICAS ================= */
+.tag { 
+    /* A cor agora é passada via variável HTML (--tag-color) */
+    background: color-mix(in srgb, var(--tag-color) 15%, transparent); 
+    border: 1px solid color-mix(in srgb, var(--tag-color) 40%, transparent); 
+    color: var(--tag-color); padding: 4px 10px; border-radius: 4px; font-size: 10px; 
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* ================= CONFIGURAÇÕES E GRID ================= */
+.settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; padding: 40px; }
+.settings-card { background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 30px; }
+.settings-card h3 { color: #fff; margin: 0 0 10px 0; }
+.text-muted { color: var(--text-muted); font-size: 13px; margin-bottom: 25px; }
+
+.tag-creator { display: flex; gap: 10px; align-items: center; }
+.color-picker { width: 45px; height: 45px; border: none; border-radius: 8px; background: transparent; cursor: pointer; }
+.color-picker::-webkit-color-swatch { border-radius: 6px; border: 1px solid var(--border-color); }
+.mt-20 { margin-top: 20px; }
+.tag-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border-color); }
