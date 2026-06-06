@@ -3,107 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supreme CRM | Atendimento Premium</title>
-    <link rel="stylesheet" href="style.css"> <!-- O seu CSS atual -->
+    <title>Supreme CRM | Enterprise Edition</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="crm-body">
 
-    <!-- Navbar Superior -->
-    <header class="crm-navbar">
-        <div class="logo-area">
-            <img src="https://via.placeholder.com/40?text=S" alt="Supreme Logo" class="logo-crm">
-            <span>Supreme CRM</span>
-        </div>
-        <div class="user-status">
-            <span class="status-dot online"></span>
-            <span class="agent-name">Operador Principal</span>
-        </div>
-    </header>
-
-    <div class="crm-container">
-        
-        <!-- COLUNA 1: Lista de Conversas -->
-        <aside class="chat-list-column">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Buscar cliente ou número...">
+    <div class="saas-layout">
+        <nav class="saas-sidebar">
+            <div class="saas-logo">
+                <img src="https://via.placeholder.com/40?text=S" alt="S">
             </div>
+            <div class="saas-menu">
+                <button class="saas-btn active" onclick="switchModule('module-chat')" title="Inbox Omnichannel">
+                    <i class="fas fa-inbox"></i>
+                </button>
+                <button class="saas-btn" onclick="switchModule('module-kanban')" title="Funil de Vendas (Kanban)">
+                    <i class="fas fa-columns"></i>
+                </button>
+                <button class="saas-btn" onclick="switchModule('module-contacts')" title="Base de Contatos">
+                    <i class="fas fa-users"></i>
+                </button>
+                <button class="saas-btn" onclick="switchModule('module-settings')" title="Configurações do Workspace">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+            <div class="saas-profile">
+                <div class="avatar-sm">OP</div>
+            </div>
+        </nav>
+
+        <div class="saas-content">
             
-            <div class="inbox-filter">
-                <button class="filter-btn active">Abertos</button>
-                <button class="filter-btn">Aguardando</button>
-                <button class="filter-btn">Resolvidos</button>
+            <div id="module-chat" class="app-module active">
+                <div class="crm-container">
+                    <aside class="chat-list-column">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Buscar no Inbox...">
+                        </div>
+                        <div class="conversations-list">
+                            <div class="chat-item active">
+                                <div class="avatar"><i class="fas fa-user"></i></div>
+                                <div class="chat-preview">
+                                    <h4>Luiz <span class="chat-time">14:30</span></h4>
+                                    <p>O bot travou no menu inicial</p>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                    <main class="chat-window-column">
+                        <div class="chat-header">
+                            <div class="chat-header-info">
+                                <h3>Luiz</h3>
+                                <p>+55 21 99999-9999</p>
+                            </div>
+                        </div>
+                        <div class="chat-history">
+                            <div class="message msg-in">O bot travou no menu inicial, preciso de ajuda<span class="msg-time">14:30</span></div>
+                        </div>
+                        <div class="chat-input-area">
+                            <textarea id="msg-input" placeholder="Digite sua mensagem..."></textarea>
+                            <button class="btn-send"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </main>
+                    <aside class="crm-details-column">
+                        <div class="crm-section">
+                            <h3>Lead Info</h3>
+                            <input type="text" class="form-control-sm" value="Luiz" readonly>
+                        </div>
+                        <div class="crm-section">
+                            <h3>Etiquetas</h3>
+                            <div class="tags-container">
+                                <span class="tag warning" style="--tag-color: #f59e0b;">SUPORTE</span>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
             </div>
 
-            <div class="conversations-list" id="chat-list">
-                <!-- Injetado via JS -->
-            </div>
-        </aside>
+            <div id="module-kanban" class="app-module">
+                <div class="module-header">
+                    <h2>Pipeline de Vendas</h2>
+                    <button class="btn btn-primary"><i class="fas fa-plus"></i> Adicionar Coluna</button>
+                </div>
+                
+                <div class="kanban-board">
+                    <div class="kanban-column">
+                        <div class="kanban-header">
+                            <h3>Novos Leads <span class="badge-count">2</span></h3>
+                        </div>
+                        <div class="kanban-cards">
+                            <div class="k-card" draggable="true">
+                                <div class="k-card-tags">
+                                    <span class="tag" style="--tag-color: #3b82f6;">NOVO</span>
+                                </div>
+                                <h4>Hospital Andaraí</h4>
+                                <p class="k-preview">Pode me enviar a proposta?</p>
+                                <div class="k-card-footer">
+                                    <span class="k-date"><i class="far fa-clock"></i> Hoje</span>
+                                    <div class="avatar-xs"><i class="fas fa-robot"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- COLUNA 2: Área de Mensagens -->
-        <main class="chat-window-column">
-            
-            <!-- Header do Chat -->
-            <div class="chat-header">
-                <div class="chat-header-info">
-                    <div class="avatar"><i class="fas fa-user"></i></div>
-                    <div>
-                        <h3 id="current-chat-name">Selecione uma conversa</h3>
-                        <p id="current-chat-phone">---</p>
+                    <div class="kanban-column">
+                        <div class="kanban-header" style="border-top-color: var(--primary);">
+                            <h3>Em Negociação <span class="badge-count">1</span></h3>
+                        </div>
+                        <div class="kanban-cards">
+                            <div class="k-card" draggable="true">
+                                <div class="k-card-tags">
+                                    <span class="tag" style="--tag-color: #D4AF37;">VIP</span>
+                                </div>
+                                <h4>Seiton Cursos</h4>
+                                <p class="k-preview">Avaliando contrato...</p>
+                                <div class="k-card-footer">
+                                    <span class="k-date"><i class="far fa-clock"></i> Ontem</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kanban-column">
+                        <div class="kanban-header" style="border-top-color: var(--success);">
+                            <h3>Fechados (Ganho) <span class="badge-count">0</span></h3>
+                        </div>
+                        <div class="kanban-cards">
+                            </div>
                     </div>
                 </div>
-                <div class="chat-header-actions">
-                    <button class="btn-icon" title="Encerrar Atendimento"><i class="fas fa-check-circle"></i></button>
+            </div>
+
+            <div id="module-settings" class="app-module">
+                <div class="module-header">
+                    <h2>Configurações do Workspace</h2>
+                </div>
+                
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3>Gestor de Etiquetas (Tags)</h3>
+                        <p class="text-muted">Crie etiquetas personalizadas para classificar seus leads.</p>
+                        
+                        <div class="tag-creator">
+                            <input type="text" class="form-control-sm" placeholder="Nome da Etiqueta (ex: VIP)">
+                            <input type="color" class="color-picker" value="#D4AF37">
+                            <button class="btn btn-primary">Criar</button>
+                        </div>
+
+                        <div class="tag-list mt-20">
+                            <div class="tag-row">
+                                <span class="tag" style="--tag-color: #D4AF37;">VIP</span>
+                                <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <div class="tag-row">
+                                <span class="tag" style="--tag-color: #ef4444;">URGENTE</span>
+                                <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>Integração Chatwoot</h3>
+                        <div class="crm-field">
+                            <label>Account ID</label>
+                            <input type="text" class="form-control-sm" value="2" readonly>
+                        </div>
+                        <div class="crm-field">
+                            <label>Token de Acesso</label>
+                            <input type="password" class="form-control-sm" value="******************">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Histórico de Mensagens -->
-            <div class="chat-history" id="chat-history">
-                <div class="empty-state">
-                    <i class="fas fa-comments"></i>
-                    <p>Nenhuma conversa selecionada</p>
-                </div>
-            </div>
-
-            <!-- Input de Mensagem -->
-            <div class="chat-input-area">
-                <button class="btn-attach"><i class="fas fa-paperclip"></i></button>
-                <textarea id="msg-input" placeholder="Digite sua mensagem (Use Shift+Enter para pular linha)..."></textarea>
-                <button class="btn-send" onclick="enviarMensagem()"><i class="fas fa-paper-plane"></i></button>
-            </div>
-
-        </main>
-
-        <!-- COLUNA 3: Ficha CRM (Informações do Cliente) -->
-        <aside class="crm-details-column">
-            <div class="crm-section">
-                <h3>Detalhes do Lead</h3>
-                <div class="crm-field">
-                    <label>Nome</label>
-                    <input type="text" id="crm-name" class="form-control-sm" readonly>
-                </div>
-                <div class="crm-field">
-                    <label>Telefone</label>
-                    <input type="text" id="crm-phone" class="form-control-sm" readonly>
-                </div>
-            </div>
-
-            <div class="crm-section">
-                <h3>Etiquetas (Chatwoot)</h3>
-                <div class="tags-container" id="crm-tags">
-                    <!-- Etiquetas renderizadas aqui -->
-                </div>
-                <button class="btn-add-tag"><i class="fas fa-plus"></i> Adicionar Etiqueta</button>
-            </div>
-
-            <div class="crm-section">
-                <h3>Anotações Internas</h3>
-                <textarea class="form-control-sm" placeholder="Anotações visíveis apenas para a equipe..."></textarea>
-                <button class="btn-save-note">Salvar Nota</button>
-            </div>
-        </aside>
-
+        </div>
     </div>
 
     <script src="app.js"></script>
