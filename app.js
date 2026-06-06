@@ -117,3 +117,22 @@ function enviarMensagem() {
     });
     */
 }
+
+// Alterna entre os Módulos (Inbox, Kanban, Settings)
+function switchModule(moduleId) {
+    // 1. Oculta todos os módulos
+    document.querySelectorAll('.app-module').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    // 2. Remove o estado ativo dos botões do menu
+    document.querySelectorAll('.saas-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // 3. Ativa o módulo selecionado
+    document.getElementById(moduleId).classList.add('active');
+    
+    // 4. Ativa o botão clicado
+    event.currentTarget.classList.add('active');
+}
