@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supreme CRM | Enterprise Omni-channel</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="crm.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="crm-body">
@@ -61,9 +61,8 @@
                                 <select class="form-control-sm assign-select" title="Atribuir Agente">
                                     <option value="unassigned">Não Atribuído</option>
                                     <option value="agent1" selected>Operador Principal</option>
-                                    <option value="agent2">Suporte N2</option>
                                 </select>
-                                <button class="btn-icon danger" title="Resolver Ticket"><i class="fas fa-check-circle"></i></button>
+                                <button class="btn-icon danger" title="Resolver Ticket" onclick="fecharTicket()"><i class="fas fa-check-circle"></i></button>
                             </div>
                         </div>
                         
@@ -83,13 +82,13 @@
                         <div class="chat-input-area" id="input-area">
                             <div class="input-tools">
                                 <button class="btn-attach" title="Anexar Arquivo"><i class="fas fa-paperclip"></i></button>
-                                <label class="toggle-internal" title="Alternar para Nota Interna (Invisível para o cliente)">
+                                <label class="toggle-internal" title="Alternar Nota Interna">
                                     <input type="checkbox" id="toggle-note" onchange="toggleInternalNote()">
                                     <i class="fas fa-lock"></i>
                                 </label>
                             </div>
                             <textarea id="msg-input" placeholder="Digite sua mensagem ao cliente..."></textarea>
-                            <button class="btn-send" id="btn-send" onclick="enviarMensagem()"><i class="fas fa-paper-plane"></i></button>
+                            <button class="btn-send glow-effect" id="btn-send" onclick="enviarMensagem()"><i class="fas fa-paper-plane"></i></button>
                         </div>
                     </main>
 
@@ -107,8 +106,7 @@
                         </div>
                         <div class="crm-section">
                             <h3>Etiquetas</h3>
-                            <div class="tags-container" id="crm-tags">
-                                </div>
+                            <div class="tags-container" id="crm-tags"></div>
                         </div>
                     </aside>
                 </div>
@@ -117,7 +115,7 @@
             <div id="module-kanban" class="app-module">
                 <div class="module-header">
                     <h2>Pipeline de Vendas</h2>
-                    <button class="btn btn-primary"><i class="fas fa-plus"></i> Nova Etapa</button>
+                    <button class="btn btn-primary glow-effect"><i class="fas fa-plus"></i> Nova Etapa</button>
                 </div>
                 <div class="kanban-board">
                     <div class="kanban-column">
@@ -135,23 +133,60 @@
                 </div>
             </div>
 
+            <div id="module-contacts" class="app-module">
+                <div class="module-header">
+                    <h2>Base de Contatos</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary"><i class="fas fa-download"></i> Exportar CSV</button>
+                        <button class="btn btn-primary glow-effect" onclick="showTechToast('Abrindo formulário de cadastro...', 'info')"><i class="fas fa-user-plus"></i> Novo Contato</button>
+                    </div>
+                </div>
+                <div class="contacts-wrapper">
+                    <table class="tech-table">
+                        <thead>
+                            <tr>
+                                <th>Nome / Empresa</th>
+                                <th>Telefone / WhatsApp</th>
+                                <th>Origem</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contacts-table-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div id="module-settings" class="app-module">
                 <div class="module-header">
                     <h2>Configurações do Workspace</h2>
                 </div>
-                
                 <div class="settings-grid">
                     
                     <div class="settings-card white-label-card">
-                        <h3><i class="fas fa-paint-brush"></i> Personalização da Marca (White-Label)</h3>
-                        <p class="text-muted">Deixe o sistema com a cara da sua empresa.</p>
+                        <h3><i class="fas fa-paint-brush"></i> Identidade Visual (White-Label)</h3>
+                        <p class="text-muted">Personalize as cores e a logo para deixar com a cara da sua empresa.</p>
                         
                         <div class="crm-field">
-                            <label>URL da Logomarca (Transparente)</label>
-                            <input type="text" id="wl-logo" class="form-control-sm" placeholder="https://site.com/logo.png" value="https://via.placeholder.com/40?text=S">
+                            <label>Upload da Logomarca (Imagem)</label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" id="wl-logo-file" accept="image/*" class="file-input-tech" onchange="handleLogoUpload(event)">
+                                <label for="wl-logo-file" class="file-btn"><i class="fas fa-upload"></i> Escolher Arquivo</label>
+                                <span id="file-name-display">Nenhum arquivo selecionado</span>
+                            </div>
+                        </div>
+
+                        <div class="crm-field">
+                            <label>Ou URL da Logomarca (Transparente)</label>
+                            <input type="text" id="wl-logo-url" class="form-control-sm" placeholder="https://site.com/logo.png">
                         </div>
                         
                         <div class="color-pickers-row">
+                            <div class="crm-field">
+                                <label>Cor do Fundo (Background)</label>
+                                <input type="color" id="wl-bg" class="color-picker-lg" value="#0A192F">
+                            </div>
                             <div class="crm-field">
                                 <label>Cor Primária (Destaques)</label>
                                 <input type="color" id="wl-primary" class="color-picker-lg" value="#D4AF37">
@@ -162,7 +197,7 @@
                             </div>
                         </div>
                         
-                        <button class="btn btn-primary mt-20" onclick="applyWhiteLabel()">Aplicar Identidade</button>
+                        <button class="btn btn-primary glow-effect mt-20" onclick="applyWhiteLabel()"><i class="fas fa-save"></i> Aplicar Identidade</button>
                     </div>
 
                     <div class="settings-card">
@@ -176,14 +211,15 @@
                             <label>Token de Acesso (API)</label>
                             <input type="password" class="form-control-sm" value="******************">
                         </div>
-                        <button class="btn btn-primary mt-20">Sincronizar</button>
+                        <button class="btn btn-primary glow-effect mt-20" onclick="showTechToast('Sincronizando com o Backend...', 'info')"><i class="fas fa-sync-alt"></i> Sincronizar</button>
                     </div>
-
                 </div>
             </div>
 
         </div>
     </div>
+
+    <div id="tech-toast-container"></div>
 
     <script src="app.js"></script>
 </body>
