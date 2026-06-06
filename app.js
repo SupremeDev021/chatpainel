@@ -1,189 +1,119 @@
-/**
- * SUPREME TECH - PORTAL DO CLIENTE FRONT-END
- * Motor de UI e Integração Headless
- */
+// Configurações do Chatwoot API (Exemplo para substituição futura)
+const CHATWOOT_API_URL = "https://chatsupreme.supremetechdev.com/api/v1";
+const ACCOUNT_ID = "2";
+const API_TOKEN = "SEU_TOKEN_DE_ACESSO_AQUI"; // Idealmente guardado num backend ou variável de ambiente no front.
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Verificação de Sessão (Login LocalStorage)
-    verificarSessao();
-
-    // 2. Listeners de Login/Logout
-    document.getElementById('login-form').addEventListener('submit', realizarLogin);
-    document.getElementById('btn-logout').addEventListener('click', realizarLogout);
-
-    // 3. Listeners de Navegação do Menu
-    document.querySelectorAll('.menu-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            // Remove active de todos
-            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-            document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
-            
-            // Adiciona no clicado
-            const targetId = e.currentTarget.getAttribute('data-target');
-            e.currentTarget.classList.add('active');
-            document.getElementById(targetId).classList.add('active');
-        });
-    });
-
-    // Inicializa estrutura de catálogo vazio caso não exista
-    renderizarCatalogo();
-});
-
-// ================= AUTENTICAÇÃO =================
-function realizarLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const errorMsg = document.getElementById('login-error');
-
-    // Aqui você conectará com o seu banco de dados ou Webhook do n8n (ex: POST /auth)
-    // Para validação visual da estrutura:
-    if(email && password.length >= 6) {
-        errorMsg.style.display = 'none';
-        
-        // Simulação de Token JWT recebido da API
-        localStorage.setItem('supreme_token', 'token_jwt_valido_aqui');
-        localStorage.setItem('supreme_user', email.split('@')[0]); 
-
-        showToast('Login realizado com sucesso!', 'success');
-        verificarSessao();
-    } else {
-        errorMsg.style.display = 'block';
-        errorMsg.innerText = "Email ou senha incorretos.";
-    }
-}
-
-function verificarSessao() {
-    const token = localStorage.getItem('supreme_token');
-    const user = localStorage.getItem('supreme_user');
-
-    if (token) {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'flex';
-        document.getElementById('user-name-display').innerText = user.charAt(0).toUpperCase() + user.slice(1);
-    } else {
-        document.getElementById('login-screen').style.display = 'flex';
-        document.getElementById('dashboard').style.display = 'none';
-    }
-}
-
-function realizarLogout() {
-    localStorage.removeItem('supreme_token');
-    localStorage.removeItem('supreme_user');
-    window.location.reload();
-}
-
-// ================= GESTÃO DE CATÁLOGOS =================
-let catalogoData = [
-    { id: 1, nome: "Serviços Digitais", itens: [{ nome: "Automação WhatsApp", preco: "R$ 497,00" }] }
+// Dados Simulados (Para visualizar o front-end funcionando agora)
+const conversasMock = [
+    { id: 101, nome: "Luiz Silva", telefone: "5521999999999", ultima_msg: "O bot travou no menu inicial", hora: "14:30", etiquetas: ["ANALISE_MANUAL", "SUPORTE"], historico: [
+        { tipo: 'in', texto: 'O bot travou no menu inicial, preciso de ajuda', hora: '14:30' }
+    ]},
+    { id: 102, nome: "Hospital Andaraí", telefone: "5521888888888", ultima_msg: "Pode me enviar a proposta?", hora: "13:15", etiquetas: ["NOVO", "PROSPECCAO_AGUARDANDO"], historico: [
+        { tipo: 'out', texto: 'Olá! Sou o Supreminho, consultor da Supreme Tech.', hora: '13:10' },
+        { tipo: 'in', texto: 'Pode me enviar a proposta?', hora: '13:15' }
+    ]}
 ];
 
-function renderizarCatalogo() {
-    const container = document.getElementById('catalogo-container');
-    container.innerHTML = '';
+let chatAtivoId = null;
 
-    catalogoData.forEach((categoria, indexCat) => {
-        let itensHTML = '';
-        categoria.itens.forEach((item, indexItem) => {
-            itensHTML += `
-                <div class="item-row">
-                    <input type="text" class="item-nome" value="${item.nome}" placeholder="Nome do Produto/Serviço" onchange="atualizarItem(${indexCat}, ${indexItem}, 'nome', this.value)">
-                    <input type="text" class="item-preco" value="${item.preco}" placeholder="R$ 0,00" onchange="atualizarItem(${indexCat}, ${indexItem}, 'preco', this.value)">
-                    <button class="btn-remove" onclick="removerItem(${indexCat}, ${indexItem})" title="Remover Item"><i class="fas fa-times-circle"></i></button>
-                </div>
-            `;
-        });
+document.addEventListener('DOMContentLoaded', () => {
+    renderizarListaConversas();
+    
+    // Captura o "Enter" para enviar mensagem
+    document.getElementById('msg-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            enviarMensagem();
+        }
+    });
+});
 
-        const catHTML = `
-            <div class="categoria-block">
-                <div class="categoria-topo">
-                    <input type="text" value="${categoria.nome}" placeholder="Nome da Categoria" onchange="atualizarCategoria(${indexCat}, this.value)">
-                    <button class="btn-remove" onclick="removerCategoria(${indexCat})" title="Remover Categoria"><i class="fas fa-trash"></i></button>
+// Renderiza a Coluna 1
+function renderizarListaConversas() {
+    const listContainer = document.getElementById('chat-list');
+    listContainer.innerHTML = '';
+
+    conversasMock.forEach(chat => {
+        listContainer.innerHTML += `
+            <div class="chat-item" id="chat-${chat.id}" onclick="abrirConversa(${chat.id})">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div class="chat-preview">
+                    <h4>${chat.nome} <span class="chat-time">${chat.hora}</span></h4>
+                    <p>${chat.ultima_msg}</p>
                 </div>
-                <div class="itens-container">
-                    ${itensHTML}
-                </div>
-                <button class="btn-add-item" onclick="adicionarItem(${indexCat})"><i class="fas fa-plus"></i> Adicionar Item</button>
             </div>
         `;
-        container.innerHTML += catHTML;
     });
 }
 
-function adicionarCategoria() {
-    catalogoData.push({ id: Date.now(), nome: "Nova Categoria", itens: [] });
-    renderizarCatalogo();
-}
+// Abre a Conversa (Colunas 2 e 3)
+function abrirConversa(id) {
+    chatAtivoId = id;
+    const chatData = conversasMock.find(c => c.id === id);
 
-function removerCategoria(index) {
-    catalogoData.splice(index, 1);
-    renderizarCatalogo();
-}
+    // Destaque na Lista
+    document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`chat-${id}`).classList.add('active');
 
-function adicionarItem(indexCat) {
-    catalogoData[indexCat].itens.push({ nome: "", preco: "" });
-    renderizarCatalogo();
-}
+    // Preenche Header (Coluna 2)
+    document.getElementById('current-chat-name').innerText = chatData.nome;
+    document.getElementById('current-chat-phone').innerText = "+" + chatData.telefone;
 
-function removerItem(indexCat, indexItem) {
-    catalogoData[indexCat].itens.splice(indexItem, 1);
-    renderizarCatalogo();
-}
-
-function atualizarCategoria(index, valor) { catalogoData[index].nome = valor; }
-function atualizarItem(indexCat, indexItem, campo, valor) { catalogoData[indexCat].itens[indexItem][campo] = valor; }
-
-function salvarCatalogo() {
-    // Aqui você enviará o array 'catalogoData' para o seu banco Postgres via API/n8n
-    console.log("JSON pronto para envio ao BD:", JSON.stringify(catalogoData));
-    showToast('Catálogo sincronizado com o banco de dados.', 'success');
-}
-
-// ================= CONFIGURAÇÕES E KILL SWITCH =================
-function toggleIA(checkbox) {
-    const status = checkbox.checked ? 'PAUSADO' : 'ATIVO';
-    // Aqui dispara a chamada para a API atualizando o status no Postgres
-    if(checkbox.checked) {
-        showToast('ATENÇÃO: IA Pausada. Atendimento manual exigido.', 'error');
-    } else {
-        showToast('IA Reativada com sucesso.', 'success');
-    }
-}
-
-function salvarConfigIA() {
-    showToast('Novas diretrizes enviadas para a IA.', 'success');
-}
-
-// ================= TOAST NOTIFICATIONS =================
-function showToast(message, type = 'success') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast-msg ${type}`;
+    // Preenche Histórico (Coluna 2)
+    const historyContainer = document.getElementById('chat-history');
+    historyContainer.innerHTML = '';
     
-    const icon = type === 'success' ? '<i class="fas fa-check-circle" style="color: var(--success); font-size: 1.2rem;"></i>' 
-                                    : '<i class="fas fa-exclamation-triangle" style="color: var(--danger); font-size: 1.2rem;"></i>';
+    chatData.historico.forEach(msg => {
+        const classe = msg.tipo === 'in' ? 'msg-in' : 'msg-out';
+        historyContainer.innerHTML += `
+            <div class="message ${classe}">
+                ${msg.texto}
+                <span class="msg-time">${msg.hora}</span>
+            </div>
+        `;
+    });
     
-    toast.innerHTML = `${icon} <span>${message}</span>`;
-    container.appendChild(toast);
+    // Desce o scroll pro final
+    historyContainer.scrollTop = historyContainer.scrollHeight;
 
-    // Animate In
-    setTimeout(() => toast.classList.add('show'), 10);
-
-    // Animate Out & Remove
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 400);
-    }, 4000);
+    // Preenche CRM (Coluna 3)
+    document.getElementById('crm-name').value = chatData.nome;
+    document.getElementById('crm-phone').value = chatData.telefone;
+    
+    const tagsContainer = document.getElementById('crm-tags');
+    tagsContainer.innerHTML = '';
+    chatData.etiquetas.forEach(tag => {
+        tagsContainer.innerHTML += `<span class="tag">${tag}</span>`;
+    });
 }
 
-// ================= PREPARAÇÃO HEADLESS CHATWOOT =================
-/* * Quando for conectar de fato ao Chatwoot, você usará chamadas Fetch semelhantes a esta:
- *
- * async function buscarConversas(accountId, apiToken) {
- * const response = await fetch(`https://chatsupreme.supremetechdev.com/api/v1/accounts/${accountId}/conversations`, {
- * headers: { 'api-access-token': apiToken }
- * });
- * const data = await response.json();
- * // Função para renderizar as mensagens na div do Painel de Atendimento
- * }
- */
+// Envia Mensagem
+function enviarMensagem() {
+    const input = document.getElementById('msg-input');
+    const texto = input.value.trim();
+    
+    if (texto === '' || chatAtivoId === null) return;
+
+    // Adiciona na interface
+    const historyContainer = document.getElementById('chat-history');
+    historyContainer.innerHTML += `
+        <div class="message msg-out">
+            ${texto.replace(/\n/g, '<br>')}
+            <span class="msg-time">Agora</span>
+        </div>
+    `;
+    input.value = '';
+    historyContainer.scrollTop = historyContainer.scrollHeight;
+
+    // Lógica Headless (Para conectar com a API Real do Chatwoot no futuro)
+    /*
+    fetch(`${CHATWOOT_API_URL}/accounts/${ACCOUNT_ID}/conversations/${chatAtivoId}/messages`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'api-access-token': API_TOKEN
+        },
+        body: JSON.stringify({ content: texto, message_type: "outgoing", private: false })
+    });
+    */
+}
