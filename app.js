@@ -1,14 +1,14 @@
 // ================= CONFIGURAÇÕES E DADOS MOCK =================
-const CHATWOOT_API_URL = "https://chatsupreme.supremetechdev.com/api/v1";
 let chatAtivoId = null;
 let isInternalNote = false;
+let uploadedLogoBase64 = null; // Armazena a imagem da logo em memória
 
 const conversasMock = [
     { id: 101, nome: "Luiz Silva", telefone: "5521999999999", channel: "whatsapp", ultima_msg: "O bot travou no menu inicial", hora: "14:30", etiquetas: ["SUPORTE"], historico: [
         { tipo: 'in', texto: 'O bot travou no menu inicial, preciso de ajuda', hora: '14:30' }
     ]},
-    { id: 102, nome: "Hospital Andaraí", telefone: "5521888888888", channel: "instagram", ultima_msg: "Pode me enviar a proposta?", hora: "13:15", etiquetas: ["VIP", "PROSPECÇÃO"], historico: [
-        { tipo: 'out', texto: 'Olá! Sou o consultor responsável.', hora: '13:10' },
+    { id: 102, nome: "Hospital Andaraí", telefone: "5521888888888", channel: "instagram", ultima_msg: "Pode me enviar a proposta?", hora: "13:15", etiquetas: ["VIP"], historico: [
+        { tipo: 'out', texto: 'Olá! Sou o consultor.', hora: '13:10' },
         { tipo: 'in', texto: 'Pode me enviar a proposta?', hora: '13:15' }
     ]}
 ];
@@ -16,27 +16,87 @@ const conversasMock = [
 // ================= INICIALIZAÇÃO =================
 document.addEventListener('DOMContentLoaded', () => {
     renderizarListaConversas();
+    renderizarBaseContatos();
+    loadSavedWhiteLabel();
     
-    // Captura Enter para envio
+    // Captura Enter para envio no Chat
     document.getElementById('msg-input').addEventListener('keypress', function (e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             enviarMensagem();
         }
     });
-
-    // Carregar White-Label salvo (Se houver)
-    loadSavedWhiteLabel();
 });
+
+// ================= TECH TOASTS (Notificações) =================
+function showTechToast(message, type = 'success') {
+    const container = document.getElementById('tech-toast-container');
+    const toast = document.createElement('div');
+    toast.className = `tech-toast toast-${type}`;
+    
+    let icon = '<i class="fas fa-check-circle"></i>';
+    if(type === 'error') icon = '<i class="fas fa-exclamation-triangle"></i>';
+    if(type === 'info') icon = '<i class="fas fa-info-circle"></i>';
+
+    toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-body">
+            <h4>${type.toUpperCase()}</h4>
+            <p>${message}</p>
+        </div>
+        <div class="toast-progress"></div>
+    `;
+
+    container.appendChild(toast);
+    
+    // Animação de entrada e saída
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+// ================= NAVEGAÇÃO DE MÓDULOS =================
+function switchModule(moduleId) {
+    document.querySelectorAll('.app-module').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.saas-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(moduleId).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+// ================= BASE DE CONTATOS =================
+function renderizarBaseContatos() {
+    const tbody = document.getElementById('contacts-table-body');
+    tbody.innerHTML = '';
+    
+    conversasMock.forEach(c => {
+        tbody.innerHTML += `
+            <tr>
+                <td>
+                    <div class="td-user">
+                        <div class="td-avatar"><i class="fas fa-user"></i></div>
+                        <span>${c.nome}</span>
+                    </div>
+                </td>
+                <td>+${c.telefone}</td>
+                <td><span class="badge ${c.channel}">${c.channel.toUpperCase()}</span></td>
+                <td><span class="status-dot online"></span> Ativo</td>
+                <td>
+                    <button class="btn-icon" onclick="switchModule('module-chat'); abrirConversa(${c.id})" title="Abrir Chat"><i class="fas fa-comment-dots"></i></button>
+                    <button class="btn-icon danger" title="Excluir"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    });
+}
 
 // ================= LÓGICA DO CHAT (INBOX) =================
 function renderizarListaConversas() {
     const listContainer = document.getElementById('chat-list');
     listContainer.innerHTML = '';
-
     conversasMock.forEach(chat => {
         const icon = chat.channel === 'whatsapp' ? '<i class="fab fa-whatsapp" style="color:var(--whatsapp)"></i>' : '<i class="fab fa-instagram" style="color:#E1306C"></i>';
-        
         listContainer.innerHTML += `
             <div class="chat-item" id="chat-${chat.id}" onclick="abrirConversa(${chat.id})">
                 <div class="avatar">${icon}</div>
@@ -52,31 +112,21 @@ function renderizarListaConversas() {
 function abrirConversa(id) {
     chatAtivoId = id;
     const chatData = conversasMock.find(c => c.id === id);
-
     document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
     document.getElementById(`chat-${id}`).classList.add('active');
-
     document.getElementById('current-chat-name').innerText = chatData.nome;
     document.getElementById('current-chat-phone').innerText = "+" + chatData.telefone;
 
     const historyContainer = document.getElementById('chat-history');
     historyContainer.innerHTML = '';
-    
     chatData.historico.forEach(msg => {
         const classe = msg.tipo === 'in' ? 'msg-in' : (msg.isNote ? 'msg-note' : 'msg-out');
-        const iconLock = msg.isNote ? '<i class="fas fa-lock" style="font-size:10px; margin-right:5px;"></i>' : '';
-        historyContainer.innerHTML += `
-            <div class="message ${classe}">
-                ${msg.texto}
-                <span class="msg-time">${iconLock}${msg.hora}</span>
-            </div>
-        `;
+        historyContainer.innerHTML += `<div class="message ${classe}">${msg.texto}<span class="msg-time">${msg.hora}</span></div>`;
     });
     historyContainer.scrollTop = historyContainer.scrollHeight;
 
     document.getElementById('crm-name').value = chatData.nome;
     document.getElementById('crm-phone').value = chatData.telefone;
-    
     const tagsContainer = document.getElementById('crm-tags');
     tagsContainer.innerHTML = '';
     chatData.etiquetas.forEach(tag => {
@@ -88,26 +138,18 @@ function enviarMensagem() {
     const input = document.getElementById('msg-input');
     const texto = input.value.trim();
     if (texto === '' || chatAtivoId === null) return;
-
+    
     const historyContainer = document.getElementById('chat-history');
     const msgClass = isInternalNote ? 'msg-note' : 'msg-out';
-    const lockIcon = isInternalNote ? '<i class="fas fa-lock" style="font-size:10px; margin-right:5px;"></i>' : '';
-
-    historyContainer.innerHTML += `
-        <div class="message ${msgClass}">
-            ${texto.replace(/\n/g, '<br>')}
-            <span class="msg-time">${lockIcon}Agora</span>
-        </div>
-    `;
+    historyContainer.innerHTML += `<div class="message ${msgClass}">${texto.replace(/\n/g, '<br>')}<span class="msg-time">Agora</span></div>`;
     input.value = '';
     historyContainer.scrollTop = historyContainer.scrollHeight;
-
-    // Simulando API Chatwoot (O atributo private define se é nota interna)
-    const payload = { content: texto, message_type: "outgoing", private: isInternalNote };
-    console.log("Enviando para Chatwoot API:", payload);
 }
 
-// ================= ZENDESK FEATURES (MACROS & NOTAS) =================
+function fecharTicket() {
+    if(chatAtivoId) showTechToast("Ticket encerrado com sucesso!", "success");
+}
+
 function insertMacro(text) {
     const input = document.getElementById('msg-input');
     input.value += (input.value.length > 0 ? " " : "") + text;
@@ -115,12 +157,10 @@ function insertMacro(text) {
 }
 
 function toggleInternalNote() {
-    const checkbox = document.getElementById('toggle-note');
+    isInternalNote = document.getElementById('toggle-note').checked;
     const inputArea = document.getElementById('input-area');
     const inputField = document.getElementById('msg-input');
     const sendBtn = document.getElementById('btn-send');
-
-    isInternalNote = checkbox.checked;
 
     if (isInternalNote) {
         inputArea.classList.add('internal-note-mode');
@@ -133,45 +173,56 @@ function toggleInternalNote() {
     }
 }
 
-// ================= MULTI-TENANT & WHITE-LABEL ENGINE =================
+// ================= WHITE-LABEL ENGINE =================
+function handleLogoUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        document.getElementById('file-name-display').innerText = file.name;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            uploadedLogoBase64 = e.target.result; // Salva o Base64 na variável
+            document.getElementById('wl-logo-url').value = ''; // Limpa a URL se o usuário subiu arquivo
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
 function applyWhiteLabel() {
-    const logoUrl = document.getElementById('wl-logo').value;
+    const bgColor = document.getElementById('wl-bg').value;
     const primaryColor = document.getElementById('wl-primary').value;
     const accentColor = document.getElementById('wl-accent').value;
+    const urlLogo = document.getElementById('wl-logo-url').value;
 
-    // Altera as Variáveis CSS na Raiz do Documento
+    // Define qual logo usar (Upload > URL > Padrão)
+    const finalLogo = uploadedLogoBase64 || urlLogo || 'https://via.placeholder.com/40?text=S';
+
+    // Injeta no :root do CSS
+    document.documentElement.style.setProperty('--bg-dark', bgColor);
     document.documentElement.style.setProperty('--primary', primaryColor);
     document.documentElement.style.setProperty('--accent', accentColor);
-    
-    // Altera a Logo
-    if(logoUrl) {
-        document.getElementById('client-logo-sidebar').src = logoUrl;
-    }
+    document.getElementById('client-logo-sidebar').src = finalLogo;
 
-    // Salva no LocalStorage para persistência no navegador do cliente
-    localStorage.setItem('wl_config', JSON.stringify({ primaryColor, accentColor, logoUrl }));
-    alert("Identidade visual aplicada com sucesso!");
+    // Salva no LocalStorage
+    localStorage.setItem('wl_config', JSON.stringify({ bgColor, primaryColor, accentColor, logoUrl: finalLogo }));
+    showTechToast("Identidade visual aplicada e salva!", "success");
 }
 
 function loadSavedWhiteLabel() {
     const saved = localStorage.getItem('wl_config');
     if (saved) {
         const config = JSON.parse(saved);
+        document.documentElement.style.setProperty('--bg-dark', config.bgColor);
         document.documentElement.style.setProperty('--primary', config.primaryColor);
         document.documentElement.style.setProperty('--accent', config.accentColor);
         document.getElementById('client-logo-sidebar').src = config.logoUrl;
         
-        // Atualiza os inputs
+        document.getElementById('wl-bg').value = config.bgColor;
         document.getElementById('wl-primary').value = config.primaryColor;
         document.getElementById('wl-accent').value = config.accentColor;
-        document.getElementById('wl-logo').value = config.logoUrl;
+        
+        // Se a logo for muito grande (Base64), não tentamos jogar no input de texto
+        if(!config.logoUrl.startsWith('data:image')) {
+            document.getElementById('wl-logo-url').value = config.logoUrl;
+        }
     }
-}
-
-// ================= NAVEGAÇÃO =================
-function switchModule(moduleId) {
-    document.querySelectorAll('.app-module').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.saas-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(moduleId).classList.add('active');
-    event.currentTarget.classList.add('active');
 }
