@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supreme CRM | Enterprise Edition</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Supreme CRM | Enterprise Omni-channel</title>
+    <link rel="stylesheet" href="crm.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="crm-body">
@@ -12,7 +12,7 @@
     <div class="saas-layout">
         <nav class="saas-sidebar">
             <div class="saas-logo">
-                <img src="https://via.placeholder.com/40?text=S" alt="S">
+                <img id="client-logo-sidebar" src="https://via.placeholder.com/40?text=S" alt="Logo">
             </div>
             <div class="saas-menu">
                 <button class="saas-btn active" onclick="switchModule('module-chat')" title="Inbox Omnichannel">
@@ -24,12 +24,12 @@
                 <button class="saas-btn" onclick="switchModule('module-contacts')" title="Base de Contatos">
                     <i class="fas fa-users"></i>
                 </button>
-                <button class="saas-btn" onclick="switchModule('module-settings')" title="Configurações do Workspace">
+                <button class="saas-btn" onclick="switchModule('module-settings')" title="Configurações e White-Label">
                     <i class="fas fa-cog"></i>
                 </button>
             </div>
             <div class="saas-profile">
-                <div class="avatar-sm">OP</div>
+                <div class="avatar-sm" id="user-initials">OP</div>
             </div>
         </nav>
 
@@ -40,43 +40,75 @@
                     <aside class="chat-list-column">
                         <div class="search-box">
                             <i class="fas fa-search"></i>
-                            <input type="text" placeholder="Buscar no Inbox...">
+                            <input type="text" placeholder="Buscar ticket, nome ou número...">
                         </div>
-                        <div class="conversations-list">
-                            <div class="chat-item active">
-                                <div class="avatar"><i class="fas fa-user"></i></div>
-                                <div class="chat-preview">
-                                    <h4>Luiz <span class="chat-time">14:30</span></h4>
-                                    <p>O bot travou no menu inicial</p>
-                                </div>
+                        <div class="inbox-filter">
+                            <button class="filter-btn active">Meus Tickets</button>
+                            <button class="filter-btn">Aguardando</button>
+                            <button class="filter-btn">Resolvidos</button>
+                        </div>
+                        <div class="conversations-list" id="chat-list">
                             </div>
-                        </div>
                     </aside>
+
                     <main class="chat-window-column">
                         <div class="chat-header">
                             <div class="chat-header-info">
-                                <h3>Luiz</h3>
-                                <p>+55 21 99999-9999</p>
+                                <h3 id="current-chat-name">Selecione uma conversa</h3>
+                                <p id="current-chat-phone">---</p>
+                            </div>
+                            <div class="chat-header-actions">
+                                <select class="form-control-sm assign-select" title="Atribuir Agente">
+                                    <option value="unassigned">Não Atribuído</option>
+                                    <option value="agent1" selected>Operador Principal</option>
+                                    <option value="agent2">Suporte N2</option>
+                                </select>
+                                <button class="btn-icon danger" title="Resolver Ticket"><i class="fas fa-check-circle"></i></button>
                             </div>
                         </div>
-                        <div class="chat-history">
-                            <div class="message msg-in">O bot travou no menu inicial, preciso de ajuda<span class="msg-time">14:30</span></div>
+                        
+                        <div class="chat-history" id="chat-history">
+                            <div class="empty-state">
+                                <i class="fas fa-comments"></i>
+                                <p>Inbox Omnichannel</p>
+                            </div>
                         </div>
-                        <div class="chat-input-area">
-                            <textarea id="msg-input" placeholder="Digite sua mensagem..."></textarea>
-                            <button class="btn-send"><i class="fas fa-paper-plane"></i></button>
+
+                        <div class="macros-bar">
+                            <span class="macro-tag" onclick="insertMacro('Olá! Como posso ajudar hoje?')">/ola</span>
+                            <span class="macro-tag" onclick="insertMacro('Aguarde um momento enquanto verifico o sistema.')">/espera</span>
+                            <span class="macro-tag" onclick="insertMacro('Seu problema foi resolvido. Podemos fechar o chamado?')">/resolvido</span>
+                        </div>
+
+                        <div class="chat-input-area" id="input-area">
+                            <div class="input-tools">
+                                <button class="btn-attach" title="Anexar Arquivo"><i class="fas fa-paperclip"></i></button>
+                                <label class="toggle-internal" title="Alternar para Nota Interna (Invisível para o cliente)">
+                                    <input type="checkbox" id="toggle-note" onchange="toggleInternalNote()">
+                                    <i class="fas fa-lock"></i>
+                                </label>
+                            </div>
+                            <textarea id="msg-input" placeholder="Digite sua mensagem ao cliente..."></textarea>
+                            <button class="btn-send" id="btn-send" onclick="enviarMensagem()"><i class="fas fa-paper-plane"></i></button>
                         </div>
                     </main>
+
                     <aside class="crm-details-column">
                         <div class="crm-section">
-                            <h3>Lead Info</h3>
-                            <input type="text" class="form-control-sm" value="Luiz" readonly>
+                            <h3>Detalhes do Lead</h3>
+                            <div class="crm-field">
+                                <label>Nome</label>
+                                <input type="text" id="crm-name" class="form-control-sm" readonly>
+                            </div>
+                            <div class="crm-field">
+                                <label>Contato</label>
+                                <input type="text" id="crm-phone" class="form-control-sm" readonly>
+                            </div>
                         </div>
                         <div class="crm-section">
                             <h3>Etiquetas</h3>
-                            <div class="tags-container">
-                                <span class="tag warning" style="--tag-color: #f59e0b;">SUPORTE</span>
-                            </div>
+                            <div class="tags-container" id="crm-tags">
+                                </div>
                         </div>
                     </aside>
                 </div>
@@ -85,53 +117,20 @@
             <div id="module-kanban" class="app-module">
                 <div class="module-header">
                     <h2>Pipeline de Vendas</h2>
-                    <button class="btn btn-primary"><i class="fas fa-plus"></i> Adicionar Coluna</button>
+                    <button class="btn btn-primary"><i class="fas fa-plus"></i> Nova Etapa</button>
                 </div>
-                
                 <div class="kanban-board">
                     <div class="kanban-column">
                         <div class="kanban-header">
-                            <h3>Novos Leads <span class="badge-count">2</span></h3>
-                        </div>
-                        <div class="kanban-cards">
-                            <div class="k-card" draggable="true">
-                                <div class="k-card-tags">
-                                    <span class="tag" style="--tag-color: #3b82f6;">NOVO</span>
-                                </div>
-                                <h4>Hospital Andaraí</h4>
-                                <p class="k-preview">Pode me enviar a proposta?</p>
-                                <div class="k-card-footer">
-                                    <span class="k-date"><i class="far fa-clock"></i> Hoje</span>
-                                    <div class="avatar-xs"><i class="fas fa-robot"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="kanban-column">
-                        <div class="kanban-header" style="border-top-color: var(--primary);">
                             <h3>Em Negociação <span class="badge-count">1</span></h3>
                         </div>
                         <div class="kanban-cards">
                             <div class="k-card" draggable="true">
-                                <div class="k-card-tags">
-                                    <span class="tag" style="--tag-color: #D4AF37;">VIP</span>
-                                </div>
-                                <h4>Seiton Cursos</h4>
+                                <div class="k-card-tags"><span class="tag" style="--tag-color: var(--primary);">VIP</span></div>
+                                <h4>Empresa Cliente S/A</h4>
                                 <p class="k-preview">Avaliando contrato...</p>
-                                <div class="k-card-footer">
-                                    <span class="k-date"><i class="far fa-clock"></i> Ontem</span>
-                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="kanban-column">
-                        <div class="kanban-header" style="border-top-color: var(--success);">
-                            <h3>Fechados (Ganho) <span class="badge-count">0</span></h3>
-                        </div>
-                        <div class="kanban-cards">
-                            </div>
                     </div>
                 </div>
             </div>
@@ -142,39 +141,44 @@
                 </div>
                 
                 <div class="settings-grid">
-                    <div class="settings-card">
-                        <h3>Gestor de Etiquetas (Tags)</h3>
-                        <p class="text-muted">Crie etiquetas personalizadas para classificar seus leads.</p>
+                    
+                    <div class="settings-card white-label-card">
+                        <h3><i class="fas fa-paint-brush"></i> Personalização da Marca (White-Label)</h3>
+                        <p class="text-muted">Deixe o sistema com a cara da sua empresa.</p>
                         
-                        <div class="tag-creator">
-                            <input type="text" class="form-control-sm" placeholder="Nome da Etiqueta (ex: VIP)">
-                            <input type="color" class="color-picker" value="#D4AF37">
-                            <button class="btn btn-primary">Criar</button>
+                        <div class="crm-field">
+                            <label>URL da Logomarca (Transparente)</label>
+                            <input type="text" id="wl-logo" class="form-control-sm" placeholder="https://site.com/logo.png" value="https://via.placeholder.com/40?text=S">
                         </div>
-
-                        <div class="tag-list mt-20">
-                            <div class="tag-row">
-                                <span class="tag" style="--tag-color: #D4AF37;">VIP</span>
-                                <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
+                        
+                        <div class="color-pickers-row">
+                            <div class="crm-field">
+                                <label>Cor Primária (Destaques)</label>
+                                <input type="color" id="wl-primary" class="color-picker-lg" value="#D4AF37">
                             </div>
-                            <div class="tag-row">
-                                <span class="tag" style="--tag-color: #ef4444;">URGENTE</span>
-                                <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
+                            <div class="crm-field">
+                                <label>Cor Secundária (Ações)</label>
+                                <input type="color" id="wl-accent" class="color-picker-lg" value="#00D2FF">
                             </div>
                         </div>
+                        
+                        <button class="btn btn-primary mt-20" onclick="applyWhiteLabel()">Aplicar Identidade</button>
                     </div>
 
                     <div class="settings-card">
-                        <h3>Integração Chatwoot</h3>
+                        <h3><i class="fas fa-server"></i> Conexão Backend (Chatwoot)</h3>
+                        <p class="text-muted">Credenciais da API Headless.</p>
                         <div class="crm-field">
                             <label>Account ID</label>
-                            <input type="text" class="form-control-sm" value="2" readonly>
+                            <input type="text" class="form-control-sm" value="2">
                         </div>
                         <div class="crm-field">
-                            <label>Token de Acesso</label>
+                            <label>Token de Acesso (API)</label>
                             <input type="password" class="form-control-sm" value="******************">
                         </div>
+                        <button class="btn btn-primary mt-20">Sincronizar</button>
                     </div>
+
                 </div>
             </div>
 
