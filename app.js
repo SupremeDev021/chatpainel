@@ -1,42 +1,45 @@
-// Configurações do Chatwoot API (Exemplo para substituição futura)
+// ================= CONFIGURAÇÕES E DADOS MOCK =================
 const CHATWOOT_API_URL = "https://chatsupreme.supremetechdev.com/api/v1";
-const ACCOUNT_ID = "2";
-const API_TOKEN = "SEU_TOKEN_DE_ACESSO_AQUI"; // Idealmente guardado num backend ou variável de ambiente no front.
+let chatAtivoId = null;
+let isInternalNote = false;
 
-// Dados Simulados (Para visualizar o front-end funcionando agora)
 const conversasMock = [
-    { id: 101, nome: "Luiz Silva", telefone: "5521999999999", ultima_msg: "O bot travou no menu inicial", hora: "14:30", etiquetas: ["ANALISE_MANUAL", "SUPORTE"], historico: [
+    { id: 101, nome: "Luiz Silva", telefone: "5521999999999", channel: "whatsapp", ultima_msg: "O bot travou no menu inicial", hora: "14:30", etiquetas: ["SUPORTE"], historico: [
         { tipo: 'in', texto: 'O bot travou no menu inicial, preciso de ajuda', hora: '14:30' }
     ]},
-    { id: 102, nome: "Hospital Andaraí", telefone: "5521888888888", ultima_msg: "Pode me enviar a proposta?", hora: "13:15", etiquetas: ["NOVO", "PROSPECCAO_AGUARDANDO"], historico: [
-        { tipo: 'out', texto: 'Olá! Sou o Supreminho, consultor da Supreme Tech.', hora: '13:10' },
+    { id: 102, nome: "Hospital Andaraí", telefone: "5521888888888", channel: "instagram", ultima_msg: "Pode me enviar a proposta?", hora: "13:15", etiquetas: ["VIP", "PROSPECÇÃO"], historico: [
+        { tipo: 'out', texto: 'Olá! Sou o consultor responsável.', hora: '13:10' },
         { tipo: 'in', texto: 'Pode me enviar a proposta?', hora: '13:15' }
     ]}
 ];
 
-let chatAtivoId = null;
-
+// ================= INICIALIZAÇÃO =================
 document.addEventListener('DOMContentLoaded', () => {
     renderizarListaConversas();
     
-    // Captura o "Enter" para enviar mensagem
+    // Captura Enter para envio
     document.getElementById('msg-input').addEventListener('keypress', function (e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             enviarMensagem();
         }
     });
+
+    // Carregar White-Label salvo (Se houver)
+    loadSavedWhiteLabel();
 });
 
-// Renderiza a Coluna 1
+// ================= LÓGICA DO CHAT (INBOX) =================
 function renderizarListaConversas() {
     const listContainer = document.getElementById('chat-list');
     listContainer.innerHTML = '';
 
     conversasMock.forEach(chat => {
+        const icon = chat.channel === 'whatsapp' ? '<i class="fab fa-whatsapp" style="color:var(--whatsapp)"></i>' : '<i class="fab fa-instagram" style="color:#E1306C"></i>';
+        
         listContainer.innerHTML += `
             <div class="chat-item" id="chat-${chat.id}" onclick="abrirConversa(${chat.id})">
-                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div class="avatar">${icon}</div>
                 <div class="chat-preview">
                     <h4>${chat.nome} <span class="chat-time">${chat.hora}</span></h4>
                     <p>${chat.ultima_msg}</p>
@@ -46,93 +49,129 @@ function renderizarListaConversas() {
     });
 }
 
-// Abre a Conversa (Colunas 2 e 3)
 function abrirConversa(id) {
     chatAtivoId = id;
     const chatData = conversasMock.find(c => c.id === id);
 
-    // Destaque na Lista
     document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
     document.getElementById(`chat-${id}`).classList.add('active');
 
-    // Preenche Header (Coluna 2)
     document.getElementById('current-chat-name').innerText = chatData.nome;
     document.getElementById('current-chat-phone').innerText = "+" + chatData.telefone;
 
-    // Preenche Histórico (Coluna 2)
     const historyContainer = document.getElementById('chat-history');
     historyContainer.innerHTML = '';
     
     chatData.historico.forEach(msg => {
-        const classe = msg.tipo === 'in' ? 'msg-in' : 'msg-out';
+        const classe = msg.tipo === 'in' ? 'msg-in' : (msg.isNote ? 'msg-note' : 'msg-out');
+        const iconLock = msg.isNote ? '<i class="fas fa-lock" style="font-size:10px; margin-right:5px;"></i>' : '';
         historyContainer.innerHTML += `
             <div class="message ${classe}">
                 ${msg.texto}
-                <span class="msg-time">${msg.hora}</span>
+                <span class="msg-time">${iconLock}${msg.hora}</span>
             </div>
         `;
     });
-    
-    // Desce o scroll pro final
     historyContainer.scrollTop = historyContainer.scrollHeight;
 
-    // Preenche CRM (Coluna 3)
     document.getElementById('crm-name').value = chatData.nome;
     document.getElementById('crm-phone').value = chatData.telefone;
     
     const tagsContainer = document.getElementById('crm-tags');
     tagsContainer.innerHTML = '';
     chatData.etiquetas.forEach(tag => {
-        tagsContainer.innerHTML += `<span class="tag">${tag}</span>`;
+        tagsContainer.innerHTML += `<span class="tag" style="--tag-color: var(--primary);">${tag}</span>`;
     });
 }
 
-// Envia Mensagem
 function enviarMensagem() {
     const input = document.getElementById('msg-input');
     const texto = input.value.trim();
-    
     if (texto === '' || chatAtivoId === null) return;
 
-    // Adiciona na interface
     const historyContainer = document.getElementById('chat-history');
+    const msgClass = isInternalNote ? 'msg-note' : 'msg-out';
+    const lockIcon = isInternalNote ? '<i class="fas fa-lock" style="font-size:10px; margin-right:5px;"></i>' : '';
+
     historyContainer.innerHTML += `
-        <div class="message msg-out">
+        <div class="message ${msgClass}">
             ${texto.replace(/\n/g, '<br>')}
-            <span class="msg-time">Agora</span>
+            <span class="msg-time">${lockIcon}Agora</span>
         </div>
     `;
     input.value = '';
     historyContainer.scrollTop = historyContainer.scrollHeight;
 
-    // Lógica Headless (Para conectar com a API Real do Chatwoot no futuro)
-    /*
-    fetch(`${CHATWOOT_API_URL}/accounts/${ACCOUNT_ID}/conversations/${chatAtivoId}/messages`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'api-access-token': API_TOKEN
-        },
-        body: JSON.stringify({ content: texto, message_type: "outgoing", private: false })
-    });
-    */
+    // Simulando API Chatwoot (O atributo private define se é nota interna)
+    const payload = { content: texto, message_type: "outgoing", private: isInternalNote };
+    console.log("Enviando para Chatwoot API:", payload);
 }
 
-// Alterna entre os Módulos (Inbox, Kanban, Settings)
-function switchModule(moduleId) {
-    // 1. Oculta todos os módulos
-    document.querySelectorAll('.app-module').forEach(el => {
-        el.classList.remove('active');
-    });
-    
-    // 2. Remove o estado ativo dos botões do menu
-    document.querySelectorAll('.saas-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+// ================= ZENDESK FEATURES (MACROS & NOTAS) =================
+function insertMacro(text) {
+    const input = document.getElementById('msg-input');
+    input.value += (input.value.length > 0 ? " " : "") + text;
+    input.focus();
+}
 
-    // 3. Ativa o módulo selecionado
-    document.getElementById(moduleId).classList.add('active');
+function toggleInternalNote() {
+    const checkbox = document.getElementById('toggle-note');
+    const inputArea = document.getElementById('input-area');
+    const inputField = document.getElementById('msg-input');
+    const sendBtn = document.getElementById('btn-send');
+
+    isInternalNote = checkbox.checked;
+
+    if (isInternalNote) {
+        inputArea.classList.add('internal-note-mode');
+        inputField.placeholder = "Escreva uma nota interna (O cliente não verá isso)...";
+        sendBtn.innerHTML = '<i class="fas fa-lock"></i>';
+    } else {
+        inputArea.classList.remove('internal-note-mode');
+        inputField.placeholder = "Digite sua mensagem ao cliente...";
+        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+    }
+}
+
+// ================= MULTI-TENANT & WHITE-LABEL ENGINE =================
+function applyWhiteLabel() {
+    const logoUrl = document.getElementById('wl-logo').value;
+    const primaryColor = document.getElementById('wl-primary').value;
+    const accentColor = document.getElementById('wl-accent').value;
+
+    // Altera as Variáveis CSS na Raiz do Documento
+    document.documentElement.style.setProperty('--primary', primaryColor);
+    document.documentElement.style.setProperty('--accent', accentColor);
     
-    // 4. Ativa o botão clicado
+    // Altera a Logo
+    if(logoUrl) {
+        document.getElementById('client-logo-sidebar').src = logoUrl;
+    }
+
+    // Salva no LocalStorage para persistência no navegador do cliente
+    localStorage.setItem('wl_config', JSON.stringify({ primaryColor, accentColor, logoUrl }));
+    alert("Identidade visual aplicada com sucesso!");
+}
+
+function loadSavedWhiteLabel() {
+    const saved = localStorage.getItem('wl_config');
+    if (saved) {
+        const config = JSON.parse(saved);
+        document.documentElement.style.setProperty('--primary', config.primaryColor);
+        document.documentElement.style.setProperty('--accent', config.accentColor);
+        document.getElementById('client-logo-sidebar').src = config.logoUrl;
+        
+        // Atualiza os inputs
+        document.getElementById('wl-primary').value = config.primaryColor;
+        document.getElementById('wl-accent').value = config.accentColor;
+        document.getElementById('wl-logo').value = config.logoUrl;
+    }
+}
+
+// ================= NAVEGAÇÃO =================
+function switchModule(moduleId) {
+    document.querySelectorAll('.app-module').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.saas-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(moduleId).classList.add('active');
     event.currentTarget.classList.add('active');
 }
