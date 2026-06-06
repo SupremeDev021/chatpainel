@@ -1,0 +1,100 @@
+/* Reset e Variáveis Globais */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+
+:root {
+    --bg-app: #0f172a;       /* Fundo da tela inteira */
+    --bg-sidebar: #1e293b;   /* Fundo do menu lateral */
+    --bg-module: #0f172a;    /* Fundo da área de trabalho */
+    --bg-card: #1e293b;      /* Fundo de cartões e Kanban */
+    --primary: #38bdf8;      /* Azul Supreme Tech */
+    --primary-hover: #0ea5e9;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --lock-bg: rgba(15, 23, 42, 0.85); /* Fundo transparente do bloqueio */
+}
+
+body { background-color: var(--bg-app); color: var(--text-main); height: 100vh; overflow: hidden; }
+
+/* Layout Grid do SaaS */
+.saas-layout { display: flex; height: 100vh; width: 100vw; }
+
+/* ================== MENU LATERAL ================== */
+.sidebar {
+    width: 260px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+}
+
+.brand { padding: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+.brand h2 { font-size: 1.2em; color: var(--primary); }
+
+.main-nav { flex: 1; padding: 20px 10px; overflow-y: auto; }
+.nav-label { font-size: 0.7em; color: var(--text-muted); font-weight: bold; margin: 15px 0 10px 10px; letter-spacing: 1px; }
+
+.main-nav ul { list-style: none; }
+.nav-item {
+    padding: 12px 15px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.2s;
+    font-size: 0.95em;
+}
+
+.nav-item:hover, .nav-item.active { background: var(--bg-app); color: var(--primary); font-weight: 500; }
+.badge.premium { background: linear-gradient(45deg, #f59e0b, #d97706); color: #fff; font-size: 0.6em; padding: 2px 6px; border-radius: 4px; margin-left: auto; }
+
+.user-profile { padding: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--bg-app); font-weight: bold; }
+.info strong { display: block; font-size: 0.9em; }
+.info span { font-size: 0.75em; color: var(--text-muted); }
+
+/* ================== ÁREA DE CONTEÚDO ================== */
+.content-area { flex: 1; background: var(--bg-module); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+/* Módulos SPA (Esconde e Mostra) */
+.module { display: none; flex-direction: column; height: 100%; padding: 30px; overflow-y: auto; }
+.module.active { display: flex; }
+
+.module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+
+/* Dashboard Cards */
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.stat-card { background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
+.stat-card h3 { color: var(--text-muted); font-size: 0.9em; margin-bottom: 10px; }
+.stat-card p { font-size: 2em; font-weight: bold; color: var(--primary); }
+
+/* ================== MÓDULO CRM (KANBAN) ================== */
+.kanban-board { display: flex; gap: 20px; height: 100%; overflow-x: auto; padding-bottom: 10px; }
+.kanban-column { min-width: 300px; background: rgba(30, 41, 59, 0.5); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; border: 1px dashed var(--border); }
+.kanban-column h3 { font-size: 0.95em; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 10px; }
+.kanban-card { background: var(--bg-card); padding: 15px; border-radius: 8px; border: 1px solid var(--border); cursor: grab; display: flex; justify-content: space-between; align-items: center; }
+.tag { font-size: 0.7em; background: #334155; padding: 3px 8px; border-radius: 12px; }
+.tag.hot { background: #ef4444; color: white; }
+
+/* TRAVA DO CRM (MODULAR) */
+.lock-overlay {
+    position: absolute;
+    top: 80px; left: 0; right: 0; bottom: 0;
+    background: var(--lock-bg);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+.lock-content { text-align: center; max-width: 400px; padding: 40px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); }
+.lock-icon { font-size: 3em; display: block; margin-bottom: 15px; }
+.lock-content p { color: var(--text-muted); margin: 15px 0 25px; font-size: 0.95em; line-height: 1.5; }
+.btn-upgrade { background: var(--primary); color: var(--bg-app); border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
+.btn-upgrade:hover { background: var(--primary-hover); transform: scale(1.02); }
+
+/* Utilitários Gerais */
+.btn-primary { background: var(--primary); color: var(--bg-app); border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
