@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supreme Tech | Painel de Gestão</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="saas-layout">
+        
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="logo-icon">🦅</span>
+                <h2>Supreme Tech</h2>
+            </div>
+            
+            <nav class="main-nav">
+                <p class="nav-label">MENU PRINCIPAL</p>
+                <ul id="nav-list">
+                    <li class="nav-item" data-target="dashboard">
+                        <span class="icon">📊</span> Visão Geral
+                    </li>
+                    <li class="nav-item active" data-target="inbox">
+                        <span class="icon">💬</span> Atendimento
+                    </li>
+                    <li class="nav-item" data-target="crm">
+                        <span class="icon">📇</span> CRM & Vendas <span class="badge premium">PRO</span>
+                    </li>
+                    <li class="nav-item" data-target="campaigns">
+                        <span class="icon">🚀</span> Disparos
+                    </li>
+                </ul>
+
+                <p class="nav-label">SISTEMA</p>
+                <ul>
+                    <li class="nav-item" data-target="settings">
+                        <span class="icon">⚙️</span> Configurações
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="user-profile">
+                <div class="avatar">C</div>
+                <div class="info">
+                    <strong>Cliente</strong>
+                    <span>Plano Atendimento</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            
+            <section id="dashboard" class="module">
+                <header class="module-header">
+                    <h1>Visão Geral para o Seu Negócio</h1>
+                </header>
+                <div class="cards-grid">
+                    <div class="stat-card"><h3>Em Andamento</h3><p>12</p></div>
+                    <div class="stat-card"><h3>Atendidos (Hoje)</h3><p>48</p></div>
+                    <div class="stat-card"><h3>Tempo Médio</h3><p>2m 30s</p></div>
+                </div>
+            </section>
+
+            <section id="inbox" class="module active">
+                <header class="module-header">
+                    <h1>Caixa de Entrada Omnichannel</h1>
+                </header>
+                <div class="chat-interface">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="msg bot">Bem-vindo à central de atendimento.</div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" placeholder="Digite sua mensagem...">
+                        <button>Enviar</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="crm" class="module">
+                <header class="module-header">
+                    <h1>CRM e Pipeline de Vendas</h1>
+                    <button class="btn-primary" id="add-lead-btn">+ Novo Lead</button>
+                </header>
+                
+                <div class="lock-overlay" id="crm-lock">
+                    <div class="lock-content">
+                        <span class="lock-icon">🔒</span>
+                        <h2>Módulo de Gestão Suprema</h2>
+                        <p>Oculte planilhas soltas e gerencie seus clientes em um Kanban visual integrado ao WhatsApp.</p>
+                        <button class="btn-upgrade" onclick="requestUpgrade()">Falar com Consultor</button>
+                    </div>
+                </div>
+
+                <div class="kanban-board" id="kanban-board">
+                    <div class="kanban-column">
+                        <h3>Novos Leads <span>2</span></h3>
+                        <div class="kanban-card">João Silva <span class="tag">WhatsApp</span></div>
+                        <div class="kanban-card">Maria Souza <span class="tag">Landing Page</span></div>
+                    </div>
+                    <div class="kanban-column">
+                        <h3>Em Negociação <span>1</span></h3>
+                        <div class="kanban-card">Costa Lima Odontologia <span class="tag hot">Quente</span></div>
+                    </div>
+                    <div class="kanban-column">
+                        <h3>Fechados <span>0</span></h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="campaigns" class="module"><header class="module-header"><h1>Disparos em Massa</h1></header></section>
+            <section id="settings" class="module"><header class="module-header"><h1>Configurações da Conta</h1></header></section>
+
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
